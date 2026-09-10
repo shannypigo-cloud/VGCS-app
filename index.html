@@ -3,686 +3,122 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vicky Cleaning — Clientes</title>
+<title>Vicky Cleaning</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
-    /* Azul cielo de fondo de tu tarjeta — el color de marca más fuerte */
-    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
-    /* Verde hoja del logo */
-    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
-    /* Verde lima brillante (acentos "nuevo") */
-    --lime:#B4D040; --lime-deep:#96B22A;
-    /* Naranja del cepillo — color principal de acción */
-    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
-    /* Azul profundo del spray — navegación / info */
-    --slate:#3060B0; --slate-pale:#E3EBF7;
-    /* Rojo neutro solo para eliminar/peligro (no es parte de la marca) */
-    --rust:#C1553D; --rust-pale:#F6E4DF;
-    --line:#DCE7ED; --radius:14px;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1;
+    --sage:#8FAE2E; --amber:#F58928; --amber-deep:#C96A16; --slate:#3060B0;
+    --line:#DCE7ED; --radius:18px;
     --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
-  .app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
 
-  /* Sidebar */
-  .sidebar{ background:var(--sky); border-right:1px solid var(--sky); padding:28px 20px; display:flex; flex-direction:column; gap:32px; }
-  .brand{ display:flex; align-items:center; gap:10px; }
+  .hero{
+    background:var(--sky); padding:56px 24px 70px; text-align:center; border-radius:0 0 32px 32px;
+  }
   .brand-mark{
-    width:38px; height:38px; border-radius:11px; flex-shrink:0; position:relative;
-    background: conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg);
-    box-shadow:0 2px 8px rgba(0,0,0,.12);
+    width:56px; height:56px; border-radius:16px; margin:0 auto 16px; position:relative;
+    background:conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg);
+    box-shadow:0 4px 14px rgba(0,0,0,.15);
   }
-  .brand-mark::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:#fff; opacity:.95; }
-  .brand-name{ font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.15; color:#0D2E42; -webkit-text-stroke:.3px rgba(255,255,255,.4); }
-  .brand-sub{ font-size:10.5px; color:#1E4E68; font-family:var(--font-mono); font-weight:500; }
-  .nav{ display:flex; flex-direction:column; gap:2px; }
-  .nav-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E68; padding:0 12px 8px; font-weight:700; opacity:.75; }
-  .nav-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:#0D2E42; font-size:14.5px; font-weight:600; cursor:pointer; text-decoration:none; }
-  .nav-item:hover{ background:rgba(255,255,255,.35); }
-  .nav-item.active{ background:#fff; color:var(--amber-deep); box-shadow:0 2px 6px rgba(0,0,0,.1); }
-  .sidebar-foot{ margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.4); }
-  .avatar{ width:34px; height:34px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
-  .foot-name{ font-size:13.5px; font-weight:700; color:#0D2E42; }
-  .foot-role{ font-size:11.5px; color:#1E4E68; }
+  .brand-mark::after{ content:""; position:absolute; inset:16px; border-radius:50%; background:#fff; opacity:.95; }
+  h1{ font-family:var(--font-display); font-size:34px; font-weight:600; color:#0D2E42; }
+  .hero p{ color:#1E4E68; font-size:14.5px; margin-top:8px; font-weight:500; }
 
-  /* Main */
-  .main{ padding:32px 40px 60px; max-width:1300px; }
-  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
-  .eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--sky-deep); letter-spacing:.06em; margin-bottom:6px; font-weight:600; }
-  h1{ font-family:var(--font-display); font-weight:600; font-size:32px; letter-spacing:-0.01em; }
-  .btn{ font-family:var(--font-body); font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; }
-  .btn-primary{ background:var(--amber-deep); color:#fff; }
-  .btn-primary:hover{ background:#A85610; }
-
-  .toolbar{ display:flex; gap:10px; margin-bottom:16px; }
-  .search{ flex:1; display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
-  .search svg{ width:16px; height:16px; flex-shrink:0; color:var(--ink-faint); }
-  .search input{ border:none; outline:none; font-family:var(--font-body); font-size:14px; width:100%; background:transparent; }
-  .search input::placeholder{ color:var(--ink-faint); }
-  .result-count{ font-family:var(--font-mono); font-size:12px; color:var(--ink-faint); align-self:center; white-space:nowrap; }
-
-  /* Estadísticas rápidas */
-  .stats-mini{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:16px; }
-  .stat-mini{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; position:relative; overflow:hidden; }
-  .stat-mini::after{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; }
-  .stat-mini.total::after{ background:var(--slate); }
-  .stat-mini.access::after{ background:var(--sage); }
-  .stat-mini.missing::after{ background:var(--amber); }
-  .stat-mini-num{ font-family:var(--font-display); font-size:22px; font-weight:600; line-height:1; }
-  .stat-mini-label{ font-size:11.5px; color:var(--ink-soft); margin-top:4px; }
-
-  /* Filtros */
-  .filter-pills{ display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
-  .pill{ font-size:12.5px; font-weight:600; padding:6px 13px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft); cursor:pointer; background:var(--surface); }
-  .pill:hover{ background:var(--sage-pale); }
-  .pill.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
-
-  .split{ display:grid; grid-template-columns:400px 1fr; gap:20px; align-items:start; }
-
-  .client-list{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; max-height:640px; overflow-y:auto; }
-  .client-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
-  .client-row:last-child{ border-bottom:none; }
-  .client-row:hover{ background:var(--sage-pale); }
-  .client-row.selected{ background:var(--sage-pale); box-shadow:inset 3px 0 0 var(--sage-deep); }
-  .client-row .avatar{ width:38px; height:38px; font-size:13px; background:var(--sage); flex-shrink:0; }
-  .client-row.is-new .avatar{ background:var(--lime-deep); }
-  .client-row-info{ flex:1; min-width:0; }
-  .client-row-name{ font-weight:600; font-size:14.5px; display:flex; align-items:center; gap:6px; }
-  .new-badge{ font-family:var(--font-mono); font-size:9.5px; font-weight:700; background:var(--lime-deep); color:#fff; padding:1px 6px; border-radius:20px; }
-  .client-row-addr{ font-size:12px; color:var(--ink-soft); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .row-code{ font-size:11px; font-family:var(--font-mono); color:var(--ink-faint); flex-shrink:0; text-align:right; }
-  .empty-list{ padding:40px 20px; text-align:center; color:var(--ink-faint); font-size:13.5px; }
-
-  .row-actions{ display:flex; gap:6px; flex-shrink:0; }
-  .icon-link{
-    width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    color:var(--ink-soft); background:var(--bg); border:1px solid var(--line); text-decoration:none;
-    flex-shrink:0;
+  .cards{
+    max-width:820px; margin:-44px auto 60px; padding:0 20px;
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
   }
-  .icon-link:hover{ background:var(--sage-pale); color:var(--sage-deep); border-color:var(--sage); }
-  .icon-link svg{ width:14px; height:14px; }
-  .icon-link.disabled{ opacity:.3; pointer-events:none; }
-
-  .profile{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; min-height:300px; }
-  .profile-head{ padding:26px 28px 22px; background:linear-gradient(135deg, var(--sage-deep), var(--sage)); color:#fff; display:flex; align-items:center; gap:18px; position:relative; overflow:hidden; }
-  .profile-head::after{ content:""; position:absolute; right:-30px; top:-40px; width:180px; height:180px; border-radius:50%; background:rgba(169,194,63,.22); }
-  .profile-avatar{ width:62px; height:62px; border-radius:50%; background:rgba(255,255,255,.18); border:2px solid rgba(255,255,255,.4); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:22px; font-weight:600; flex-shrink:0; position:relative; }
-  .profile-name{ font-family:var(--font-display); font-size:24px; font-weight:600; position:relative; }
-  .profile-sub{ font-size:13px; color:rgba(255,255,255,.75); margin-top:3px; position:relative; }
-  .profile-actions{ margin-left:auto; display:flex; gap:8px; position:relative; }
-  .icon-btn-round{
-    width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,.15);
-    border:1px solid rgba(255,255,255,.32); display:flex; align-items:center; justify-content:center;
-    color:#fff; text-decoration:none; flex-shrink:0;
+  .card{
+    background:var(--surface); border-radius:var(--radius); box-shadow:0 8px 28px rgba(20,60,80,.12);
+    padding:28px 26px; text-decoration:none; color:var(--ink); display:flex; flex-direction:column; gap:10px;
+    border:1px solid var(--line);
   }
-  .icon-btn-round:hover{ background:rgba(255,255,255,.28); }
-  .icon-btn-round.disabled{ opacity:.35; pointer-events:none; }
-  .icon-btn-round svg{ width:17px; height:17px; }
-
-  .profile-toolbar{
-    display:flex; justify-content:flex-end; gap:8px;
-    padding:12px 28px; border-bottom:1px solid var(--line);
+  .card:hover{ box-shadow:0 12px 34px rgba(20,60,80,.18); transform:translateY(-2px); }
+  .card-icon{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    color:#fff; margin-bottom:4px;
   }
-  .text-btn{
-    display:flex; align-items:center; gap:6px;
-    font-family:var(--font-body); font-size:12.5px; font-weight:600;
-    background:none; border:1px solid var(--line); border-radius:8px;
-    padding:6px 12px; cursor:pointer; color:var(--ink-soft);
+  .card-icon svg{ width:22px; height:22px; }
+  .card.clients .card-icon{ background:var(--slate); }
+  .card.employee .card-icon{ background:var(--amber); }
+  .card h2{ font-family:var(--font-display); font-size:20px; font-weight:600; }
+  .card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+  .card .tag{
+    margin-top:auto; align-self:flex-start; font-family:var(--font-mono); font-size:11px; font-weight:600;
+    color:var(--amber-deep); background:#FDEBDA; padding:4px 10px; border-radius:20px;
   }
-  .text-btn:hover{ background:var(--sage-pale); color:var(--ink); }
-  .text-btn.danger:hover{ background:var(--rust-pale); color:var(--rust); border-color:#E9C4B8; }
-  .text-btn svg{ width:13px; height:13px; }
 
-  /* Menú inferior estilo app de celular — solo aparece en pantallas chicas */
-  .bottom-nav{
-    display:none;
-    position:fixed; left:0; right:0; bottom:0;
-    background:var(--sky); border-top:1px solid var(--sky-deep);
-    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
-    z-index:40;
-  }
-  .bottom-nav-inner{ display:flex; }
-  .bn-item{
-    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-    color:#1E4E68; font-size:10.5px; font-weight:700; text-decoration:none;
-    padding:4px 0;
-  }
-  .bn-item svg{ width:21px; height:21px; }
-  .bn-item.active{ color:var(--amber-deep); }
+  .footnote{ text-align:center; color:var(--ink-faint); font-size:12.5px; padding:0 20px 40px; }
 
-  .profile-body{ padding:24px 28px 28px; display:grid; grid-template-columns:1fr 1fr; gap:20px 24px; }
-  .field-group h4{ font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--line); }
-  .field{ padding:6px 0; }
-  .field-label{ font-size:11px; color:var(--ink-faint); }
-  .field-value{ font-size:14px; font-weight:500; }
-  .field-value.mono{ font-family:var(--font-mono); font-size:13.5px; }
-  .field-value.empty{ color:var(--ink-faint); font-style:italic; font-weight:400; }
-  .callout{ background:var(--rust-pale); border:1px solid #E9C4B8; border-radius:10px; padding:12px 14px; font-size:13px; line-height:1.55; color:#8C3D28; grid-column:1/-1; }
-  .callout b{ display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; color:var(--rust); }
-  .profile-placeholder{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--ink-faint); gap:10px; font-size:13.5px; }
-
-  /* Modal */
-  .overlay{ position:fixed; inset:0; background:rgba(31,43,36,.45); display:none; align-items:flex-start; justify-content:center; padding:60px 20px; z-index:50; }
-  .overlay.open{ display:flex; }
-  .modal{ background:var(--surface); border-radius:18px; width:100%; max-width:460px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
-  .modal-head{ padding:22px 26px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
-  .modal-head h2{ font-family:var(--font-display); font-size:19px; font-weight:600; }
-  .modal-close{ background:none; border:none; cursor:pointer; color:var(--ink-faint); font-size:20px; line-height:1; padding:4px; }
-  .modal-body{ padding:20px 26px; display:flex; flex-direction:column; gap:14px; max-height:70vh; overflow-y:auto; }
-  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .form-field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px; }
-  .form-field input, .form-field textarea{
-    width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 11px;
-    font-family:var(--font-body); font-size:13.5px; outline:none;
-  }
-  .form-field input:focus, .form-field textarea:focus{ border-color:var(--sage-deep); box-shadow:0 0 0 3px var(--sage-pale); }
-  .modal-foot{ padding:16px 26px 22px; display:flex; gap:10px; justify-content:flex-end; }
-  .btn-ghost{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
-
-  .toast{
-    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px);
-    background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px;
-    display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60;
-  }
-  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
-  .toast svg{ width:16px; height:16px; color:var(--lime); }
-
-  @media (max-width: 980px){
-    .app{ grid-template-columns:1fr; }
-    .sidebar{ display:none; }
-    .split{ grid-template-columns:1fr; }
-    .profile-body{ grid-template-columns:1fr; }
-    .main{ padding-bottom:88px; }
-    .bottom-nav{ display:block; }
-  }  @media (max-width: 640px){
-    .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
-    .page-head .btn{ width:100%; }
-    .toolbar{ flex-direction:column; }
-    .stats-mini{ grid-template-columns:1fr; }
+  @media (max-width:640px){
+    .cards{ grid-template-columns:1fr; margin-top:-30px; }
+    h1{ font-size:27px; }
   }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="brand-mark"></div>
-      <div>
-        <div class="brand-name">Vicky Cleaning</div>
-        <div class="brand-sub">(941) 822-1699</div>
-      </div>
-    </div>
-    <nav class="nav">
-      <div class="nav-label">Operar</div>
-      <a class="nav-item">Panel</a>
-      <a class="nav-item">Calendario</a>
-      <a class="nav-item active">Clientes</a>
-      <a class="nav-item">Mapa</a>
-      <div class="nav-label" style="margin-top:10px;">Administrar</div>
-      <a class="nav-item">Empleados</a>
-      <a class="nav-item">Incidencias</a>
-      <a class="nav-item">Historial</a>
-      <a class="nav-item">Finanzas</a>
-      <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
-    </nav>
-    <div class="sidebar-foot">
-      <div class="avatar" id="sidebarAvatar">?</div>
-      <div>
-        <div class="foot-name" id="sidebarName">Cargando…</div>
-        <div class="foot-role" id="sidebarRole"></div>
-      </div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="page-head">
-      <div>
-        <div class="eyebrow" id="eyebrow">CLIENTES REALES DE TU LISTA</div>
-        <h1>Clientes</h1>
-      </div>
-      <button class="btn btn-primary" id="openModalBtn">+ Nuevo Cliente</button>
-    </div>
-
-    <div class="toolbar">
-      <div class="search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-        <input type="text" id="searchInput" placeholder="Buscar por nombre, dirección o teléfono…">
-      </div>
-      <div class="result-count" id="resultCount"></div>
-    </div>
-
-    <div class="stats-mini" id="statsMini"></div>
-
-    <div class="filter-pills" id="filterPills">
-      <div class="pill active" data-filter="todos">Todos</div>
-      <div class="pill" data-filter="acceso">Con código de acceso</div>
-      <div class="pill" data-filter="sin-telefono">Sin teléfono</div>
-      <div class="pill" data-filter="sin-direccion">Sin dirección</div>
-    </div>
-
-    <div class="split">
-      <div class="client-list" id="clientList"></div>
-      <div class="profile" id="profilePanel"></div>
-    </div>
-  </main>
-</div>
-
-<nav class="bottom-nav">
-  <div class="bottom-nav-inner">
-    <a class="bn-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-      Panel
-    </a>
-    <a class="bn-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
-      Calendario
-    </a>
-    <a class="bn-item active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
-      Clientes
-    </a>
-    <a class="bn-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 12 2a7 7 0 0 1 7 7.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
-      Mapa
-    </a>
-    <a class="bn-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-      Más
-    </a>
+  <div class="hero">
+    <div class="brand-mark"></div>
+    <h1>Vicky Cleaning</h1>
+    <p id="greeting">Cargando…</p>
+    <p style="margin-top:14px;"><a href="#" id="logoutLink" style="color:#1E4E68; font-size:13px; font-weight:600; text-decoration:underline;">Cerrar sesión</a></p>
   </div>
-</nav>
 
-<!-- Modal: Nuevo Cliente -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="modal-head">
-      <h2 id="modalTitle">Nuevo Cliente</h2>
-      <button class="modal-close" id="closeModalBtn">&times;</button>
-    </div>
-    <form id="newClientForm">
-      <div class="modal-body">
-        <div class="form-row">
-          <div class="form-field">
-            <label>Nombre *</label>
-            <input type="text" id="f-first" required placeholder="Ej. Karen">
-          </div>
-          <div class="form-field">
-            <label>Apellido</label>
-            <input type="text" id="f-last" placeholder="Ej. Whitmore">
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Teléfono *</label>
-          <input type="tel" id="f-phone" required placeholder="(941) 555-0148">
-        </div>
-        <div class="form-field">
-          <label>Dirección</label>
-          <input type="text" id="f-address" placeholder="Calle y número">
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Ciudad</label>
-            <input type="text" id="f-city" placeholder="Sarasota">
-          </div>
-          <div class="form-field">
-            <label>Teléfono alterno</label>
-            <input type="text" id="f-alt" placeholder="Opcional">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-field">
-            <label>Código de reja</label>
-            <input type="text" id="f-gate" placeholder="Ej. 4471#">
-          </div>
-          <div class="form-field">
-            <label>Código de garaje</label>
-            <input type="text" id="f-garage" placeholder="Ej. 1211">
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Notas de acceso</label>
-          <textarea id="f-notes" rows="2" placeholder="Mascotas, alarma, instrucciones especiales…"></textarea>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="submitBtnText">Guardar cliente</button>
-      </div>
-    </form>
-  </div>
-</div>
+  <div class="cards" id="cardsContainer"></div>
 
-<div class="toast" id="toast">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-  <span id="toastText">Cliente agregado</span>
-</div>
+  <div class="footnote">Conectado a tu Google Sheet en vivo.</div>
 
 <script src="api.js"></script>
 <script>
-// ---------- Sesión ----------
 const session = VickyAPI.requireAuth();
 if (session) {
   const user = session.user;
-  const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
-  document.getElementById('sidebarAvatar').textContent = initialsStr.toUpperCase() || '?';
-  document.getElementById('sidebarName').textContent = user.first_name + ' ' + (user.last_name || '');
-  document.getElementById('sidebarRole').textContent = VickyAPI.hasRole(session, 'admin') ? 'Administradora' : 'Empleada';
-}
-document.getElementById('logoutNavItem').addEventListener('click', () => VickyAPI.logout());
+  document.getElementById('greeting').textContent = 'Hola, ' + user.first_name + ' 👋';
 
-// ---------- Datos (cargados del backend real) ----------
-let clients = [];
-let selectedIndex = 0;
-let activeFilter = 'todos';
-let editingClientId = null; // null = modal en modo "nuevo", string = editando ese client_id
+  const isAdmin = VickyAPI.hasRole(session, 'admin');
+  const isEmployee = VickyAPI.hasRole(session, 'employee');
+  const cards = [];
 
-function initials(c){
-  const a = String(c.first_name || "").trim()[0] || "";
-  const b = String(c.last_name || "").trim()[0] || "";
-  return (a + b).toUpperCase() || "?";
-}
-
-function fullName(c){
-  return [c.first_name, c.last_name].filter(Boolean).join(" ");
-}
-
-function telHref(c){
-  if(!c.phone) return null;
-  return 'tel:' + String(c.phone).replace(/[^\d+]/g, '');
-}
-
-function waHref(c){
-  if(!c.phone) return null;
-  const digits = String(c.phone).replace(/\D/g, '');
-  return 'https://wa.me/1' + digits; // asume EE.UU. — cambiar el "1" si algún día hay clientes fuera de EE.UU.
-}
-
-function mapsHref(c){
-  if(!c.address1) return null;
-  const query = encodeURIComponent([c.address1, c.city].filter(Boolean).join(', '));
-  return 'https://www.google.com/maps/search/?api=1&query=' + query;
-}
-
-function loadClients(){
-  document.getElementById('clientList').innerHTML = '<div class="empty-list">Cargando clientes…</div>';
-  VickyAPI.call('listClients', { activeOnly: true })
-    .then(data => {
-      clients = data;
-      if (selectedIndex >= clients.length) selectedIndex = 0;
-      render();
-    })
-    .catch(err => {
-      document.getElementById('clientList').innerHTML = '<div class="empty-list">Error al cargar: ' + err.message + '</div>';
-    });
-}
-
-const PHONE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .3 2 .6 2.9a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.5 2.9.6a2 2 0 0 1 1.8 2.1z"/></svg>';
-const MAP_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 12 2a7 7 0 0 1 7 7.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>';
-const CHAT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
-const EDIT_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
-const TRASH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6h16z"/></svg>';
-
-function matchesFilter(c){
-  if(activeFilter === 'acceso') return !!(c.gate_code || c.garage_code);
-  if(activeFilter === 'sin-telefono') return !c.phone;
-  if(activeFilter === 'sin-direccion') return !c.address1;
-  return true;
-}
-
-function render(){
-  const query = document.getElementById('searchInput').value.trim().toLowerCase();
-  const filtered = clients
-    .map((c, i) => ({ c, i }))
-    .filter(({c}) => matchesFilter(c))
-    .filter(({c}) => {
-      if(!query) return true;
-      const haystack = (fullName(c) + " " + (c.address1||"") + " " + (c.city||"") + " " + (c.phone||"")).toLowerCase();
-      return haystack.includes(query);
-    });
-
-  document.getElementById('resultCount').textContent = filtered.length + (filtered.length === 1 ? " cliente" : " clientes");
-  document.getElementById('eyebrow').textContent = clients.length + " CLIENTES EN TOTAL";
-
-  // ---------- Estadísticas rápidas ----------
-  const totalConAcceso = clients.filter(c => c.gate_code || c.garage_code).length;
-  const totalSinTelefono = clients.filter(c => !c.phone).length;
-  document.getElementById('statsMini').innerHTML = `
-    <div class="stat-mini total">
-      <div class="stat-mini-num">${clients.length}</div>
-      <div class="stat-mini-label">Clientes totales</div>
-    </div>
-    <div class="stat-mini access">
-      <div class="stat-mini-num">${totalConAcceso}</div>
-      <div class="stat-mini-label">Con código de acceso</div>
-    </div>
-    <div class="stat-mini missing">
-      <div class="stat-mini-num">${totalSinTelefono}</div>
-      <div class="stat-mini-label">Sin teléfono registrado</div>
-    </div>
-  `;
-
-  const listEl = document.getElementById('clientList');
-  if(filtered.length === 0){
-    listEl.innerHTML = '<div class="empty-list">Ningún cliente coincide con ese filtro o búsqueda.</div>';
-  } else {
-    listEl.innerHTML = filtered.map(({c, i}) => {
-      const tel = telHref(c);
-      const maps = mapsHref(c);
-      return `
-      <div class="client-row ${i === selectedIndex ? 'selected' : ''}" data-index="${i}">
-        <div class="avatar">${initials(c)}</div>
-        <div class="client-row-info">
-          <div class="client-row-name">${fullName(c)}</div>
-          <div class="client-row-addr">${[c.address1, c.city].filter(Boolean).join(', ') || 'Sin dirección'}</div>
+  if (isAdmin) {
+    cards.push(`
+      <a class="card clients" href="clientes.html">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
         </div>
-        <div class="row-actions">
-          <a class="icon-link ${tel ? '' : 'disabled'}" href="${tel || '#'}" title="Llamar" onclick="event.stopPropagation()">${PHONE_ICON}</a>
-          <a class="icon-link ${maps ? '' : 'disabled'}" href="${maps || '#'}" target="_blank" rel="noopener" title="Ver en mapa" onclick="event.stopPropagation()">${MAP_ICON}</a>
-        </div>
-      </div>
-    `}).join('');
-
-    listEl.querySelectorAll('.client-row').forEach(row => {
-      row.addEventListener('click', () => {
-        selectedIndex = parseInt(row.dataset.index, 10);
-        render();
-      });
-    });
+        <h2>Panel de Clientes</h2>
+        <p>Ver, buscar, agregar y editar clientes — con llamada, WhatsApp y mapa directo desde cada tarjeta.</p>
+        <span class="tag">Vista de escritorio</span>
+      </a>
+    `);
   }
 
-  renderProfile();
-}
-
-function renderProfile(){
-  const panel = document.getElementById('profilePanel');
-  const c = clients[selectedIndex];
-  if(!c){
-    panel.innerHTML = '<div class="profile-placeholder">Selecciona un cliente de la lista</div>';
-    return;
+  if (isEmployee) {
+    cards.push(`
+      <a class="card employee" href="empleada.html">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        </div>
+        <h2>Mi Día — Trabajos de hoy</h2>
+        <p>Tus trabajos del día con cronómetro en vivo, navegación por GPS y códigos de acceso reales.</p>
+        <span class="tag">Vista de celular</span>
+      </a>
+    `);
   }
 
-  const hasAccess = c.gate_code || c.garage_code;
-  const tel = telHref(c);
-  const wa = waHref(c);
-  const maps = mapsHref(c);
-
-  panel.innerHTML = `
-    <div class="profile-head">
-      <div class="profile-avatar">${initials(c)}</div>
-      <div>
-        <div class="profile-name">${fullName(c)}</div>
-        <div class="profile-sub">Cliente activo</div>
-      </div>
-      <div class="profile-actions">
-        <a class="icon-btn-round ${tel ? '' : 'disabled'}" href="${tel || '#'}" title="Llamar">${PHONE_ICON}</a>
-        <a class="icon-btn-round ${wa ? '' : 'disabled'}" href="${wa || '#'}" target="_blank" rel="noopener" title="WhatsApp">${CHAT_ICON}</a>
-        <a class="icon-btn-round ${maps ? '' : 'disabled'}" href="${maps || '#'}" target="_blank" rel="noopener" title="Ver en mapa">${MAP_ICON}</a>
-      </div>
-    </div>
-    <div class="profile-toolbar">
-      <button class="text-btn" id="editClientBtn">${EDIT_ICON} Editar</button>
-      <button class="text-btn danger" id="deleteClientBtn">${TRASH_ICON} Eliminar</button>
-    </div>
-    <div class="profile-body">
-      <div class="field-group">
-        <h4>Contacto</h4>
-        <div class="field">
-          <div class="field-label">Teléfono</div>
-          <div class="field-value mono">${c.phone || '<span class="empty">Sin registrar</span>'}</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Dirección</div>
-          <div class="field-value">${[c.address1, c.city].filter(Boolean).join('<br>') || '<span class="empty">Sin registrar</span>'}</div>
-        </div>
-      </div>
-      <div class="field-group">
-        <h4>Servicio</h4>
-        <div class="field">
-          <div class="field-label">Tipo de servicio</div>
-          <div class="field-value empty">Aún no configurado</div>
-        </div>
-        <div class="field">
-          <div class="field-label">Frecuencia</div>
-          <div class="field-value empty">Aún no configurada</div>
-        </div>
-      </div>
-      ${hasAccess ? `
-        <div class="callout">
-          <b>Código de acceso</b>
-          ${c.gate_code ? `Reja: <strong>${c.gate_code}</strong>` : ''}${c.gate_code && c.garage_code ? ' · ' : ''}${c.garage_code ? `Garaje: <strong>${c.garage_code}</strong>` : ''}
-        </div>
-      ` : ''}
-      ${c.notes ? `
-        <div class="callout" style="background:var(--amber-pale); border-color:#EED9B6; color:#7A5623;">
-          <b style="color:#9A6423;">Notas</b>
-          ${c.notes}
-        </div>
-      ` : ''}
-    </div>
-  `;
-
-  document.getElementById('editClientBtn').addEventListener('click', () => openModalForEdit(c));
-  document.getElementById('deleteClientBtn').addEventListener('click', () => deleteClient(c));
+  document.getElementById('cardsContainer').innerHTML = cards.join('');
 }
 
-function showToast(msg){
-  const toast = document.getElementById('toast');
-  document.getElementById('toastText').textContent = msg;
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2600);
-}
-
-// ---------- Filtros ----------
-document.getElementById('filterPills').addEventListener('click', (e) => {
-  const pill = e.target.closest('.pill');
-  if(!pill) return;
-  document.querySelectorAll('#filterPills .pill').forEach(p => p.classList.remove('active'));
-  pill.classList.add('active');
-  activeFilter = pill.dataset.filter;
-  selectedIndex = 0;
-  render();
-});
-
-// ---------- Modal (crear y editar) ----------
-const overlay = document.getElementById('overlay');
-
-function openModal(){
-  editingClientId = null;
-  document.getElementById('modalTitle').textContent = 'Nuevo Cliente';
-  document.getElementById('submitBtnText').textContent = 'Guardar cliente';
-  document.getElementById('newClientForm').reset();
-  overlay.classList.add('open');
-  document.getElementById('f-first').focus();
-}
-
-function openModalForEdit(c){
-  editingClientId = c.client_id;
-  document.getElementById('modalTitle').textContent = 'Editar Cliente';
-  document.getElementById('submitBtnText').textContent = 'Guardar cambios';
-  document.getElementById('f-first').value = c.first_name || '';
-  document.getElementById('f-last').value = c.last_name || '';
-  document.getElementById('f-phone').value = c.phone || '';
-  document.getElementById('f-address').value = c.address1 || '';
-  document.getElementById('f-city').value = c.city || '';
-  document.getElementById('f-gate').value = c.gate_code || '';
-  document.getElementById('f-garage').value = c.garage_code || '';
-  document.getElementById('f-notes').value = c.notes || '';
-  overlay.classList.add('open');
-  document.getElementById('f-first').focus();
-}
-
-function closeModal(){
-  overlay.classList.remove('open');
-  document.getElementById('newClientForm').reset();
-  editingClientId = null;
-}
-
-function deleteClient(c){
-  if(!confirm(`¿Eliminar a ${fullName(c)}? Esto no se puede deshacer.`)) return;
-  VickyAPI.call('deleteClient', { client_id: c.client_id })
-    .then(() => {
-      selectedIndex = 0;
-      showToast(`${fullName(c)} se eliminó de la lista`);
-      loadClients();
-    })
-    .catch(err => showToast('Error al eliminar: ' + err.message));
-}
-
-document.getElementById('openModalBtn').addEventListener('click', openModal);
-document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
-overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(); });
-
-document.getElementById('newClientForm').addEventListener('submit', (e) => {
+document.getElementById('logoutLink').addEventListener('click', function(e){
   e.preventDefault();
-  const data = {
-    first_name: document.getElementById('f-first').value.trim(),
-    last_name: document.getElementById('f-last').value.trim(),
-    phone: document.getElementById('f-phone').value.trim(),
-    address1: document.getElementById('f-address').value.trim(),
-    city: document.getElementById('f-city').value.trim(),
-    gate_code: document.getElementById('f-gate').value.trim(),
-    garage_code: document.getElementById('f-garage').value.trim(),
-    notes: document.getElementById('f-notes').value.trim(),
-  };
-
-  const submitBtn = document.getElementById('newClientForm').querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-
-  if(editingClientId !== null){
-    VickyAPI.call('updateClient', { client_id: editingClientId, patch: data })
-      .then(() => {
-        closeModal();
-        showToast(`${fullName(data)} se actualizó`);
-        loadClients();
-      })
-      .catch(err => showToast('Error al guardar: ' + err.message))
-      .finally(() => submitBtn.disabled = false);
-  } else {
-    VickyAPI.call('createClient', data)
-      .then(() => {
-        selectedIndex = 0;
-        document.getElementById('searchInput').value = '';
-        closeModal();
-        showToast(`${fullName(data)} se agregó a la lista`);
-        loadClients();
-      })
-      .catch(err => showToast('Error al guardar: ' + err.message))
-      .finally(() => submitBtn.disabled = false);
-  }
+  VickyAPI.logout();
 });
-
-document.getElementById('searchInput').addEventListener('input', () => {
-  selectedIndex = 0;
-  render();
-});
-
-if (session) loadClients();
 </script>
+
 </body>
 </html>
