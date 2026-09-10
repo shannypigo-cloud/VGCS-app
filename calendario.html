@@ -213,6 +213,7 @@
 <script src="api.js"></script>
 <script>
 const session = VickyAPI.requireAuth();
+if (session && !VickyAPI.hasRole(session, 'admin')) { window.location.href = 'empleada.html'; }
 if (session) {
   const user = session.user;
   const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
