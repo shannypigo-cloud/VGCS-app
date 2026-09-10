@@ -219,15 +219,12 @@
     </div>
     <nav class="nav">
       <div class="nav-label">Operar</div>
-      <a class="nav-item">Panel</a>
-      <a class="nav-item">Calendario</a>
-      <a class="nav-item active">Clientes</a>
-      <a class="nav-item">Mapa</a>
+      <a class="nav-item" href="panel.html">Panel</a>
+      <a class="nav-item" href="calendario.html">Calendario</a>
+      <a class="nav-item active" href="clientes.html">Clientes</a>
       <div class="nav-label" style="margin-top:10px;">Administrar</div>
-      <a class="nav-item">Empleados</a>
-      <a class="nav-item">Incidencias</a>
-      <a class="nav-item">Historial</a>
-      <a class="nav-item">Finanzas</a>
+      <a class="nav-item" href="empleados.html">Empleados</a>
+      <a class="nav-item" href="incidencias.html">Incidencias</a>
       <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
     </nav>
     <div class="sidebar-foot">
@@ -274,25 +271,25 @@
 
 <nav class="bottom-nav">
   <div class="bottom-nav-inner">
-    <a class="bn-item">
+    <a class="bn-item" href="panel.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Panel
     </a>
-    <a class="bn-item">
+    <a class="bn-item" href="calendario.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
       Calendario
     </a>
-    <a class="bn-item active">
+    <a class="bn-item active" href="clientes.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
       Clientes
     </a>
-    <a class="bn-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 12 2a7 7 0 0 1 7 7.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.3"/></svg>
-      Mapa
+    <a class="bn-item" href="empleados.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Empleados
     </a>
-    <a class="bn-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-      Más
+    <a class="bn-item" href="incidencias.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
     </a>
   </div>
 </nav>
@@ -382,8 +379,8 @@ let activeFilter = 'todos';
 let editingClientId = null; // null = modal en modo "nuevo", string = editando ese client_id
 
 function initials(c){
-  const a = (c.first_name || "").trim()[0] || "";
-  const b = (c.last_name || "").trim()[0] || "";
+  const a = String(c.first_name || "").trim()[0] || "";
+  const b = String(c.last_name || "").trim()[0] || "";
   return (a + b).toUpperCase() || "?";
 }
 
@@ -393,12 +390,12 @@ function fullName(c){
 
 function telHref(c){
   if(!c.phone) return null;
-  return 'tel:' + c.phone.replace(/[^\d+]/g, '');
+  return 'tel:' + String(c.phone).replace(/[^\d+]/g, '');
 }
 
 function waHref(c){
   if(!c.phone) return null;
-  const digits = c.phone.replace(/\D/g, '');
+  const digits = String(c.phone).replace(/\D/g, '');
   return 'https://wa.me/1' + digits; // asume EE.UU. — cambiar el "1" si algún día hay clientes fuera de EE.UU.
 }
 
