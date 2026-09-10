@@ -77,8 +77,10 @@
   .client-picker-item:last-child{ border-bottom:none; }
   .client-picker-item:hover{ background:var(--sage-pale); }
   .client-picker-selected{ font-size:12.5px; color:var(--sage-deep); font-weight:600; margin-top:6px; }
-  .emp-checks{ display:flex; flex-direction:column; gap:6px; max-height:160px; overflow-y:auto; border:1px solid var(--line); border-radius:9px; padding:10px; }
-  .emp-check{ display:flex; align-items:center; gap:8px; font-size:13.5px; }
+  .emp-checks{ display:flex; flex-direction:column; gap:2px; max-height:160px; overflow-y:auto; border:1px solid var(--line); border-radius:9px; padding:10px; }
+  .emp-check{ display:flex; flex-direction:row; align-items:center; justify-content:flex-start; flex-wrap:nowrap; gap:8px; font-size:13.5px; padding:6px 2px; cursor:pointer; }
+  .emp-check input[type="checkbox"]{ flex-shrink:0; width:16px; height:16px; margin:0; }
+  .emp-check span{ flex:1; }
   .modal-foot{ padding:16px 26px 22px; display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap; }
   .modal-foot-right{ display:flex; gap:10px; }
   .btn-danger{ background:var(--rust-pale); color:var(--rust); }
@@ -344,10 +346,11 @@ const overlay = document.getElementById('overlay');
 
 function renderEmpChecks(selectedIds){
   selectedIds = selectedIds || [];
-  document.getElementById('empChecks').innerHTML = employees.map(e => `
+  const validEmployees = employees.filter(e => (e.first_name || '').trim());
+  document.getElementById('empChecks').innerHTML = validEmployees.map(e => `
     <label class="emp-check">
       <input type="checkbox" value="${e.employee_id}" ${selectedIds.indexOf(e.employee_id) !== -1 ? 'checked' : ''}>
-      ${[e.first_name, e.last_name].filter(Boolean).join(' ')}
+      <span>${[e.first_name, e.last_name].filter(Boolean).join(' ')}</span>
     </label>
   `).join('') || '<div style="color:var(--ink-faint); font-size:13px;">No hay empleados activos registrados.</div>';
 }
@@ -415,6 +418,8 @@ document.getElementById('saveVisitBtn').addEventListener('click', () => {
 
   const saveBtn = document.getElementById('saveVisitBtn');
   saveBtn.disabled = true;
+  const originalBtnText = saveBtn.textContent;
+  saveBtn.textContent = 'Guardando…';
 
   const afterSave = (visitId) => {
     VickyAPI.call('setVisitAssignments', { visit_id: visitId, employeeIds: empIds })
@@ -424,17 +429,17 @@ document.getElementById('saveVisitBtn').addEventListener('click', () => {
         loadDay();
       })
       .catch(err => showToast('Visita guardada, pero error al asignar equipo: ' + err.message))
-      .finally(() => saveBtn.disabled = false);
+      .finally(() => { saveBtn.disabled = false; saveBtn.textContent = originalBtnText; });
   };
 
   if (editingVisitId) {
     VickyAPI.call('updateVisit', { visit_id: editingVisitId, patch: patch })
       .then(() => afterSave(editingVisitId))
-      .catch(err => { showToast('Error: ' + err.message); saveBtn.disabled = false; });
+      .catch(err => { showToast('Error: ' + err.message); saveBtn.disabled = false; saveBtn.textContent = originalBtnText; });
   } else {
     VickyAPI.call('createVisit', patch)
       .then(result => afterSave(result.visit_id))
-      .catch(err => { showToast('Error: ' + err.message); saveBtn.disabled = false; });
+      .catch(err => { showToast('Error: ' + err.message); saveBtn.disabled = false; saveBtn.textContent = originalBtnText; });
   }
 });
 
