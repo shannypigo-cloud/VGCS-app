@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Hoy</title>
+<script src="api.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --lime:#B4D040; --lime-deep:#96B22A;
+    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
+    --slate:#3060B0; --slate-pale:#E3EBF7;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:18px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; display:flex; justify-content:center; }
+  .phone{ width:390px; min-height:100vh; background:var(--bg); display:flex; flex-direction:column; position:relative; }
+
+  /* Header */
+  .header{ background:var(--sky); padding:22px 20px 20px; border-radius:0 0 22px 22px; }
+  .header-top{ display:flex; align-items:center; justify-content:space-between; }
+  .eyebrow{ font-family:var(--font-mono); font-size:11px; color:#1E4E68; letter-spacing:.05em; font-weight:600; }
+  .greeting{ font-family:var(--font-display); font-size:25px; font-weight:600; margin-top:4px; color:#0D2E42; }
+  .sub{ font-size:13px; color:#1E4E68; margin-top:4px; font-weight:500; }
+  .avatar-header{
+    width:42px; height:42px; border-radius:50%; background:#fff; color:var(--slate);
+    display:flex; align-items:center; justify-content:center; font-family:var(--font-display);
+    font-weight:600; font-size:15px; flex-shrink:0; box-shadow:0 2px 6px rgba(0,0,0,.08);
+  }
+
+  .content{ flex:1; padding:16px 20px 100px; display:flex; flex-direction:column; gap:14px; }
+
+  /* Job activo */
+  .job-active{
+    background:var(--ink); color:#fff; border-radius:20px; padding:20px; position:relative; overflow:hidden;
+  }
+  .job-active::before{ content:""; position:absolute; top:0; right:0; width:140px; height:140px; background:radial-gradient(circle, rgba(245,137,40,.35), transparent 70%); }
+  .job-tag{
+    display:inline-flex; align-items:center; gap:6px; font-family:var(--font-mono); font-size:11px;
+    background:rgba(245,137,40,.22); color:var(--amber); padding:4px 10px; border-radius:20px; margin-bottom:14px; font-weight:600;
+  }
+  .job-tag .dot{ width:6px; height:6px; border-radius:50%; background:var(--amber); }
+  .job-client{ font-family:var(--font-display); font-size:22px; font-weight:600; position:relative; }
+  .job-addr{ font-size:13.5px; color:rgba(255,255,255,.65); margin-top:3px; position:relative; }
+  .job-timer{ font-family:var(--font-mono); font-size:34px; font-weight:500; margin:18px 0 4px; letter-spacing:.02em; position:relative; }
+  .job-timer-label{ font-size:11.5px; color:rgba(255,255,255,.5); text-transform:uppercase; letter-spacing:.06em; position:relative; }
+
+  .job-actions{ display:flex; gap:10px; margin-top:18px; position:relative; }
+  .btn{ font-family:var(--font-body); font-weight:700; font-size:14px; border:none; border-radius:12px; padding:14px 0; flex:1; text-align:center; cursor:pointer; }
+  .btn-start{ background:var(--amber); color:#fff; }
+  .btn-complete{ background:var(--lime); color:#1F2B14; }
+  .icon-row{ display:flex; gap:8px; margin-top:10px; position:relative; }
+  .icon-btn{
+    flex:1; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14); border-radius:10px;
+    padding:10px; display:flex; flex-direction:column; align-items:center; gap:4px; color:rgba(255,255,255,.85);
+    font-size:10.5px; font-weight:600; text-decoration:none;
+  }
+  .icon-btn svg{ width:18px; height:18px; }
+  .icon-btn.danger{ color:#FF9D8A; background:rgba(193,85,61,.18); border-color:rgba(193,85,61,.35); }
+
+  .instructions{ background:rgba(255,255,255,.08); border-radius:10px; padding:12px 14px; margin-top:14px; font-size:12.5px; line-height:1.55; color:rgba(255,255,255,.82); position:relative; }
+  .instructions b{ color:#fff; }
+
+  .section-label{ font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); letter-spacing:.06em; text-transform:uppercase; margin:6px 2px 0; font-weight:600; }
+
+  /* Tickets */
+  .ticket{ background:var(--surface); border:1px solid var(--line); border-radius:16px; display:grid; grid-template-columns:5px 1fr; overflow:hidden; }
+  .ticket-edge{ background:var(--edge, var(--slate)); }
+  .ticket.done{ --edge: var(--sage); }
+  .ticket.scheduled{ --edge: var(--slate); }
+  .ticket-inner{ padding:14px 16px; display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .ticket-time{ font-family:var(--font-mono); font-size:12.5px; color:var(--ink-soft); width:52px; flex-shrink:0; }
+  .ticket-info{ flex:1; min-width:0; }
+  .ticket-client{ font-weight:700; font-size:14.5px; }
+  .ticket-addr{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .status-badge{ font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; flex-shrink:0; }
+  .status-badge.done{ background:var(--sage-pale); color:var(--sage-deep); }
+  .status-badge.scheduled{ background:var(--slate-pale); color:var(--slate); }
+  .status-badge.next{ background:var(--amber-pale); color:var(--amber-deep); }
+
+  .empty-note{ font-size:12.5px; color:var(--ink-faint); font-style:italic; padding:4px 2px; }
+
+  /* Bottom nav */
+  .bottom-nav{
+    position:fixed; bottom:0; width:390px; background:var(--sky); border-top:1px solid var(--sky-deep);
+    display:flex; padding:10px 10px calc(10px + env(safe-area-inset-bottom));
+  }
+  .nav-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; color:#1E4E68; font-size:11px; font-weight:700; }
+  .nav-item svg{ width:22px; height:22px; }
+  .nav-item.active{ color:var(--amber-deep); }
+
+  .toast{
+    position:fixed; bottom:80px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px;
+    display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60; max-width:340px; text-align:center;
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast svg{ width:16px; height:16px; color:var(--lime); flex-shrink:0; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <div class="header">
+    <div class="header-top">
+      <div>
+        <div class="eyebrow" id="dateLabel"></div>
+        <div class="greeting">Hola 👋</div>
+        <div class="sub" id="jobSummary">Tienes 4 trabajos hoy</div>
+      </div>
+      <div class="avatar-header">?</div>
+    </div>
+  </div>
+
+  <div class="content" id="content"></div>
+
+  <nav class="bottom-nav">
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Hoy
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      Mi horario
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Perfil
+    </div>
+  </nav>
+
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;">
+
+<script>
+// ---------- Sesión ----------
+const session = VickyAPI.requireAuth();
+const EMPLOYEE_NAME = session ? (session.user.first_name + ' ' + (session.user.last_name || '')).trim() : 'Empleada';
+
+function todayStr(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+const WORK_DATE = todayStr();
+
+// Trabajos de hoy — se cargan del backend real.
+let jobs = [];
+let activeTimer = null;
+
+function getGeo(){
+  return new Promise((resolve) => {
+    if (!navigator.geolocation) { resolve({ status: 'unavailable' }); return; }
+    navigator.geolocation.getCurrentPosition(
+      pos => resolve({ latitude: pos.coords.latitude, longitude: pos.coords.longitude, accuracy: pos.coords.accuracy, status: 'captured' }),
+      () => resolve({ status: 'denied' }),
+      { timeout: 6000 }
+    );
+  });
+}
+
+function mapVisitToJob(v){
+  const c = v.client || {};
+  let status = 'pending';
+  if (v.status === 'in_progress') status = 'active';
+  if (v.status === 'completed') status = 'done';
+  return {
+    id: v.visit_id,
+    status: status,
+    time: v.start_time || '',
+    client: [c.first_name, c.last_name].filter(Boolean).join(' ') || 'Cliente',
+    address: [c.address1, c.city].filter(Boolean).join(', '),
+    gate: c.gate_code || '',
+    garage: c.garage_code || '',
+    notes: v.admin_notes || c.notes || '',
+    elapsedSec: 0,
+    durationMin: null,
+  };
+}
+
+function loadDay(){
+  document.getElementById('content').innerHTML = '<div class="empty-note">Cargando tus trabajos de hoy…</div>';
+  VickyAPI.call('getMyDay', { work_date: WORK_DATE })
+    .then(data => {
+      jobs = data.visits.map(mapVisitToJob);
+      render();
+    })
+    .catch(err => {
+      document.getElementById('content').innerHTML = '<div class="empty-note">Error al cargar: ' + err.message + '</div>';
+    });
+}
+
+const PIN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-6 9 6-9 6-9-6z"/><path d="M21 9v6l-9 6-9-6V9"/></svg>';
+const PHOTO_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg>';
+const NOTE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+const WARN_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>';
+
+function fmtTime(sec){
+  const h = String(Math.floor(sec/3600)).padStart(2,'0');
+  const m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  const s = String(sec%60).padStart(2,'0');
+  return `${h}:${m}:${s}`;
+}
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function initHeader(){
+  const initials = EMPLOYEE_NAME.trim().split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.querySelector('.avatar-header').textContent = initials || '?';
+  document.querySelector('.greeting').textContent = 'Hola, ' + EMPLOYEE_NAME + ' 👋';
+  const today = new Date();
+  document.getElementById('dateLabel').textContent = today.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' }).toUpperCase();
+}
+
+function startJob(id){
+  const job = jobs.find(j => j.id === id);
+  getGeo().then(geo => {
+    VickyAPI.call('startVisit', { visit_id: id, work_date: WORK_DATE, geo: geo })
+      .then(() => {
+        job.status = 'active';
+        job.startedAt = Date.now();
+        clearInterval(activeTimer);
+        activeTimer = setInterval(() => { job.elapsedSec++; updateTimerOnly(); }, 1000);
+        render();
+        showToast('Trabajo iniciado en ' + job.client.split(' ')[0]);
+      })
+      .catch(err => showToast('Error al iniciar: ' + err.message));
+  });
+}
+
+function completeJob(id){
+  const job = jobs.find(j => j.id === id);
+  getGeo().then(geo => {
+    VickyAPI.call('endVisit', { visit_id: id, work_date: WORK_DATE, geo: geo })
+      .then(() => {
+        clearInterval(activeTimer);
+        job.status = 'done';
+        job.durationMin = Math.max(1, Math.round(job.elapsedSec / 60));
+        render();
+        showToast('Trabajo completado — ' + job.durationMin + ' min registrados');
+      })
+      .catch(err => showToast('Error al completar: ' + err.message));
+  });
+}
+
+let currentPhotoVisitId = null;
+
+function triggerPhoto(id){
+  currentPhotoVisitId = id;
+  document.getElementById('photoInput').click();
+}
+
+document.getElementById('photoInput').addEventListener('change', function(){
+  const file = this.files[0];
+  if (!file || !currentPhotoVisitId) return;
+  const reader = new FileReader();
+  reader.onload = function(){
+    const base64 = reader.result.split(',')[1];
+    VickyAPI.call('uploadVisitPhoto', {
+      visit_id: currentPhotoVisitId,
+      base64Data: base64,
+      mimeType: file.type,
+      category: 'progreso',
+    })
+      .then(() => showToast('Foto subida correctamente'))
+      .catch(err => showToast('Error al subir foto: ' + err.message));
+  };
+  reader.readAsDataURL(file);
+  this.value = '';
+});
+
+function addNote(id){
+  const text = prompt('Escribe la nota para esta visita:');
+  if (!text || !text.trim()) return;
+  VickyAPI.call('addVisitNote', { visit_id: id, note_text: text.trim(), note_type: 'employee' })
+    .then(() => showToast('Nota guardada'))
+    .catch(err => showToast('Error al guardar nota: ' + err.message));
+}
+
+function reportProblem(id){
+  const description = prompt('Describe el problema (daño, acceso, suministros, seguridad, otro):');
+  if (!description || !description.trim()) return;
+  VickyAPI.call('reportIncident', { visit_id: id, incident_type: 'other', description: description.trim() })
+    .then(() => showToast('Incidente reportado'))
+    .catch(err => showToast('Error al reportar: ' + err.message));
+}
+
+function updateTimerOnly(){
+  const timerEl = document.getElementById('liveTimer');
+  const job = jobs.find(j => j.status === 'active');
+  if(timerEl && job) timerEl.textContent = fmtTime(job.elapsedSec);
+}
+
+function render(){
+  const pending = jobs.filter(j => j.status !== 'done').sort((a,b) => (a.time||'').localeCompare(b.time||''));
+  const done = jobs.filter(j => j.status === 'done');
+  const active = jobs.find(j => j.status === 'active');
+
+  document.getElementById('jobSummary').textContent =
+    `Tienes ${jobs.length} trabajos hoy · ${done.length} completado${done.length === 1 ? '' : 's'}`;
+
+  let html = '';
+
+  if(active){
+    html += `
+      <div class="section-label">En progreso</div>
+      <div class="job-active">
+        <div class="job-tag"><span class="dot"></span> EN PROGRESO</div>
+        <div class="job-client">${active.client}</div>
+        <div class="job-addr">${active.address}</div>
+        <div class="job-timer" id="liveTimer">${fmtTime(active.elapsedSec)}</div>
+        <div class="job-timer-label">Tiempo transcurrido</div>
+        <div class="job-actions">
+          <button class="btn btn-complete" onclick="completeJob('${active.id}')">Completar Trabajo</button>
+        </div>
+        <div class="icon-row">
+          <a class="icon-btn" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(active.address)}" target="_blank">${PIN_ICON}Navegar</a>
+          <a class="icon-btn" onclick="triggerPhoto('${active.id}')">${PHOTO_ICON}Foto</a>
+          <a class="icon-btn" onclick="addNote('${active.id}')">${NOTE_ICON}Nota</a>
+          <a class="icon-btn danger" onclick="reportProblem('${active.id}')">${WARN_ICON}Problema</a>
+        </div>
+        <div class="instructions">
+          <b>Acceso:</b> ${active.gate ? 'Reja ' + active.gate : ''}${active.gate && active.garage ? ' · ' : ''}${active.garage ? 'Garaje ' + active.garage : ''}${!active.gate && !active.garage ? 'Sin código registrado — toca en la puerta.' : ''}<br>
+          <b>Notas:</b> ${active.notes || 'Sin notas especiales registradas.'}
+        </div>
+      </div>
+    `;
+  }
+
+  const upcoming = pending.filter(j => j.status === 'pending');
+  if(upcoming.length){
+    html += `<div class="section-label">Próximos</div>`;
+    upcoming.forEach((j, idx) => {
+      html += `
+        <div class="ticket scheduled">
+          <div class="ticket-edge"></div>
+          <div class="ticket-inner" onclick="startJob('${j.id}')">
+            <div class="ticket-time">${j.time}</div>
+            <div class="ticket-info">
+              <div class="ticket-client">${j.client}</div>
+              <div class="ticket-addr">${j.address}</div>
+            </div>
+            <div class="status-badge ${idx === 0 && !active ? 'next' : 'scheduled'}">${idx === 0 && !active ? 'Iniciar' : 'Programado'}</div>
+          </div>
+        </div>
+      `;
+    });
+  } else if(!active) {
+    html += `<div class="empty-note">No quedan más trabajos programados por hoy 🎉</div>`;
+  }
+
+  if(done.length){
+    html += `<div class="section-label">Completados</div>`;
+    done.forEach(j => {
+      html += `
+        <div class="ticket done">
+          <div class="ticket-edge"></div>
+          <div class="ticket-inner">
+            <div class="ticket-time">${j.time}</div>
+            <div class="ticket-info">
+              <div class="ticket-client">${j.client}</div>
+              <div class="ticket-addr">${j.address} · ${j.durationMin} min</div>
+            </div>
+            <div class="status-badge done">Listo</div>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  document.getElementById('content').innerHTML = html;
+}
+
+if (session) {
+  initHeader();
+  loadDay();
+}
+</script>
+</body>
+</html>

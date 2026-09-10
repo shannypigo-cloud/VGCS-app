@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1;
+    --sage:#8FAE2E; --amber:#F58928; --amber-deep:#C96A16; --slate:#3060B0;
+    --line:#DCE7ED; --radius:18px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+
+  .hero{
+    background:var(--sky); padding:56px 24px 70px; text-align:center; border-radius:0 0 32px 32px;
+  }
+  .brand-mark{
+    width:56px; height:56px; border-radius:16px; margin:0 auto 16px; position:relative;
+    background:conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg);
+    box-shadow:0 4px 14px rgba(0,0,0,.15);
+  }
+  .brand-mark::after{ content:""; position:absolute; inset:16px; border-radius:50%; background:#fff; opacity:.95; }
+  h1{ font-family:var(--font-display); font-size:34px; font-weight:600; color:#0D2E42; }
+  .hero p{ color:#1E4E68; font-size:14.5px; margin-top:8px; font-weight:500; }
+
+  .cards{
+    max-width:820px; margin:-44px auto 60px; padding:0 20px;
+    display:grid; grid-template-columns:1fr 1fr; gap:20px;
+  }
+  .card{
+    background:var(--surface); border-radius:var(--radius); box-shadow:0 8px 28px rgba(20,60,80,.12);
+    padding:28px 26px; text-decoration:none; color:var(--ink); display:flex; flex-direction:column; gap:10px;
+    border:1px solid var(--line);
+  }
+  .card:hover{ box-shadow:0 12px 34px rgba(20,60,80,.18); transform:translateY(-2px); }
+  .card-icon{
+    width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    color:#fff; margin-bottom:4px;
+  }
+  .card-icon svg{ width:22px; height:22px; }
+  .card.clients .card-icon{ background:var(--slate); }
+  .card.employee .card-icon{ background:var(--amber); }
+  .card h2{ font-family:var(--font-display); font-size:20px; font-weight:600; }
+  .card p{ font-size:13.5px; color:var(--ink-soft); line-height:1.5; }
+  .card .tag{
+    margin-top:auto; align-self:flex-start; font-family:var(--font-mono); font-size:11px; font-weight:600;
+    color:var(--amber-deep); background:#FDEBDA; padding:4px 10px; border-radius:20px;
+  }
+
+  .footnote{ text-align:center; color:var(--ink-faint); font-size:12.5px; padding:0 20px 40px; }
+
+  @media (max-width:640px){
+    .cards{ grid-template-columns:1fr; margin-top:-30px; }
+    h1{ font-size:27px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="brand-mark"></div>
+    <h1>Vicky Cleaning</h1>
+    <p id="greeting">Cargando…</p>
+    <p style="margin-top:14px;"><a href="#" id="logoutLink" style="color:#1E4E68; font-size:13px; font-weight:600; text-decoration:underline;">Cerrar sesión</a></p>
+  </div>
+
+  <div class="cards" id="cardsContainer"></div>
+
+  <div class="footnote">Conectado a tu Google Sheet en vivo.</div>
+
+<script src="api.js"></script>
+<script>
+const session = VickyAPI.requireAuth();
+if (session) {
+  const user = session.user;
+  document.getElementById('greeting').textContent = 'Hola, ' + user.first_name + ' 👋';
+
+  const isAdmin = VickyAPI.hasRole(session, 'admin');
+  const isEmployee = VickyAPI.hasRole(session, 'employee');
+  const cards = [];
+
+  if (isAdmin) {
+    cards.push(`
+      <a class="card clients" href="clientes.html">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+        </div>
+        <h2>Panel de Clientes</h2>
+        <p>Ver, buscar, agregar y editar clientes — con llamada, WhatsApp y mapa directo desde cada tarjeta.</p>
+        <span class="tag">Vista de escritorio</span>
+      </a>
+    `);
+  }
+
+  if (isEmployee) {
+    cards.push(`
+      <a class="card employee" href="empleada.html">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        </div>
+        <h2>Mi Día — Trabajos de hoy</h2>
+        <p>Tus trabajos del día con cronómetro en vivo, navegación por GPS y códigos de acceso reales.</p>
+        <span class="tag">Vista de celular</span>
+      </a>
+    `);
+  }
+
+  document.getElementById('cardsContainer').innerHTML = cards.join('');
+}
+
+document.getElementById('logoutLink').addEventListener('click', function(e){
+  e.preventDefault();
+  VickyAPI.logout();
+});
+</script>
+
+</body>
+</html>

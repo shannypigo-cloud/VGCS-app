@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Iniciar sesión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --amber:#F58928; --amber-deep:#C96A16; --amber-pale:#FDEBDA;
+    --slate:#3060B0;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:18px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:var(--font-body); background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .card{
+    background:var(--surface); border-radius:var(--radius); box-shadow:0 12px 40px rgba(20,60,80,.14);
+    width:100%; max-width:380px; padding:36px 32px; border:1px solid var(--line);
+  }
+  .brand-mark{
+    width:48px; height:48px; border-radius:14px; margin:0 auto 14px; position:relative;
+    background:conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg);
+    box-shadow:0 4px 14px rgba(0,0,0,.15);
+  }
+  .brand-mark::after{ content:""; position:absolute; inset:14px; border-radius:50%; background:#fff; opacity:.95; }
+  h1{ font-family:var(--font-display); font-size:24px; font-weight:600; text-align:center; color:#0D2E42; }
+  .sub{ font-size:13px; color:var(--ink-soft); text-align:center; margin-top:6px; margin-bottom:26px; }
+  .field{ margin-bottom:16px; }
+  .field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:6px; }
+  .field input{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:11px 13px;
+    font-family:var(--font-body); font-size:14px; outline:none;
+  }
+  .field input:focus{ border-color:var(--sky-deep); box-shadow:0 0 0 3px var(--sky-pale, #E4F5FC); }
+  .btn{
+    width:100%; font-family:var(--font-body); font-weight:700; font-size:14.5px; border:none;
+    border-radius:11px; padding:13px 0; cursor:pointer; margin-top:6px;
+  }
+  .btn-primary{ background:var(--amber-deep); color:#fff; }
+  .btn-primary:hover{ background:#A85610; }
+  .btn-primary:disabled{ opacity:.6; cursor:not-allowed; }
+  .error-box{
+    background:var(--rust-pale); border:1px solid #E9C4B8; color:#8C3D28; border-radius:10px;
+    padding:10px 13px; font-size:13px; margin-bottom:16px; display:none;
+  }
+  .error-box.show{ display:block; }
+  .hint{ font-size:12px; color:var(--ink-faint); text-align:center; margin-top:18px; }
+  .change-pw-note{
+    background:var(--amber-pale); border:1px solid #EED9B6; color:#7A5623; border-radius:10px;
+    padding:10px 13px; font-size:12.5px; margin-bottom:16px; display:none;
+  }
+  .change-pw-note.show{ display:block; }
+</style>
+</head>
+<body>
+
+  <div class="card">
+    <div class="brand-mark"></div>
+    <h1>Vicky Cleaning</h1>
+    <div class="sub">Inicia sesión para continuar</div>
+
+    <div class="error-box" id="errorBox"></div>
+    <div class="change-pw-note" id="changePwNote">
+      Por seguridad, elige una contraseña nueva para tu cuenta.
+    </div>
+
+    <form id="loginForm">
+      <div class="field">
+        <label>Usuario</label>
+        <input type="text" id="username" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label>Contraseña</label>
+        <input type="password" id="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary" id="submitBtn">Entrar</button>
+    </form>
+
+    <form id="changePwForm" style="display:none;">
+      <div class="field">
+        <label>Contraseña nueva</label>
+        <input type="password" id="newPassword" autocomplete="new-password" required minlength="6">
+      </div>
+      <div class="field">
+        <label>Confirma la contraseña nueva</label>
+        <input type="password" id="newPassword2" autocomplete="new-password" required minlength="6">
+      </div>
+      <button type="submit" class="btn btn-primary" id="changePwBtn">Guardar y continuar</button>
+    </form>
+
+    <div class="hint">Vicky Cleaning — plataforma interna</div>
+  </div>
+
+<script src="api.js"></script>
+<script>
+function showError(msg){
+  const box = document.getElementById('errorBox');
+  box.textContent = msg;
+  box.classList.add('show');
+}
+function hideError(){
+  document.getElementById('errorBox').classList.remove('show');
+}
+
+// Si ya hay sesión activa, saltar directo a index.html
+if (VickyAPI.getSession()) {
+  window.location.href = 'index.html';
+}
+
+document.getElementById('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  hideError();
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Entrando…';
+
+  VickyAPI.call('login', { username: username, password: password }, { skipAuth: true })
+    .then(function(data){
+      VickyAPI.setSession(data);
+      if (data.user.must_change_password) {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('changePwForm').style.display = 'flex';
+        document.getElementById('changePwForm').style.flexDirection = 'column';
+        document.getElementById('changePwNote').classList.add('show');
+      } else {
+        window.location.href = 'index.html';
+      }
+    })
+    .catch(function(err){
+      showError(err.message || 'No se pudo iniciar sesión.');
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    });
+});
+
+document.getElementById('changePwForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  hideError();
+  const p1 = document.getElementById('newPassword').value;
+  const p2 = document.getElementById('newPassword2').value;
+  if (p1 !== p2) {
+    showError('Las contraseñas no coinciden.');
+    return;
+  }
+  const btn = document.getElementById('changePwBtn');
+  btn.disabled = true;
+  btn.textContent = 'Guardando…';
+
+  VickyAPI.call('changePassword', { newPassword: p1 })
+    .then(function(){
+      // Actualiza la sesión local para que must_change_password ya no bloquee
+      const session = VickyAPI.getSession();
+      session.user.must_change_password = false;
+      VickyAPI.setSession(session);
+      window.location.href = 'index.html';
+    })
+    .catch(function(err){
+      showError(err.message || 'No se pudo guardar la contraseña.');
+      btn.disabled = false;
+      btn.textContent = 'Guardar y continuar';
+    });
+});
+</script>
+</body>
+</html>
