@@ -111,9 +111,28 @@ function hideError(){
   document.getElementById('errorBox').classList.remove('show');
 }
 
-// Si ya hay sesión activa, saltar directo a index.html
-if (VickyAPI.getSession()) {
-  window.location.href = 'index.html';
+// Si ya hay sesión activa, avisar en vez de rebotar en silencio —
+// así no queda "atorada" la sesión de otra persona sin que se note.
+const existingSession = VickyAPI.getSession();
+if (existingSession) {
+  document.getElementById('loginForm').style.display = 'none';
+  const name = existingSession.user.first_name || existingSession.user.username;
+  document.body.insertAdjacentHTML('beforeend', `
+    <div class="overlay-session" style="position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; z-index:99;">
+      <div style="background:#fff; border-radius:16px; padding:28px 26px; max-width:340px; text-align:center;">
+        <p style="font-size:14.5px; margin-bottom:18px;">Ya hay una sesión activa como <b>${name}</b>.</p>
+        <button class="btn btn-primary" id="continueSessionBtn" style="margin-bottom:10px;">Continuar como ${name}</button>
+        <button class="btn btn-ghost" id="switchAccountBtn" style="width:100%; background:#fff; border:1px solid var(--line); border-radius:11px; padding:13px 0; font-weight:700; cursor:pointer;">Cerrar sesión y entrar con otra cuenta</button>
+      </div>
+    </div>
+  `);
+  document.getElementById('continueSessionBtn').addEventListener('click', () => {
+    window.location.href = 'index.html';
+  });
+  document.getElementById('switchAccountBtn').addEventListener('click', () => {
+    VickyAPI.clearSession();
+    window.location.reload();
+  });
 }
 
 document.getElementById('loginForm').addEventListener('submit', function(e){
