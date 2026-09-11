@@ -148,8 +148,8 @@
   .bottom-nav-inner{ display:flex; }
   .bn-item{
     flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
-    color:#1E4E68; font-size:10.5px; font-weight:700; text-decoration:none;
-    padding:4px 0;
+    color:#1E4E68; font-size:9.5px; font-weight:700; text-decoration:none;
+    padding:4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
   }
   .bn-item svg{ width:21px; height:21px; }
   .bn-item.active{ color:var(--amber-deep); }
@@ -196,7 +196,7 @@
     .sidebar{ display:none; }
     .split{ grid-template-columns:1fr; }
     .profile-body{ grid-template-columns:1fr; }
-    .main{ padding-bottom:88px; }
+    .main{ padding:20px 16px 88px; }
     .bottom-nav{ display:block; }
   }  @media (max-width: 640px){
     .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
@@ -291,6 +291,10 @@
     <a class="bn-item" href="incidencias.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
       Incidencias
+    </a>
+    <a class="bn-item" id="accountBnItem" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Cuenta
     </a>
   </div>
 </nav>
@@ -685,6 +689,16 @@ document.getElementById('searchInput').addEventListener('input', () => {
 });
 
 if (session) loadClients();
+
+document.getElementById('accountBnItem').addEventListener('click', () => {
+  if (session && VickyAPI.hasRole(session, 'employee')) {
+    if (confirm('¿Cambiar a modo empleada? (Cancelar para ver más opciones)')) {
+      window.location.href = 'empleada.html';
+      return;
+    }
+  }
+  if (confirm('¿Cerrar sesión?')) VickyAPI.logout();
+});
 </script>
 </body>
 </html>
