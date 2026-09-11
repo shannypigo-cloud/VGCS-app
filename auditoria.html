@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Auditoría</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
+    --slate:#3060B0; --slate-pale:#E3EBF7;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:14px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--sky); border-right:1px solid var(--sky); padding:28px 20px; display:flex; flex-direction:column; gap:32px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{ width:38px; height:38px; border-radius:11px; flex-shrink:0; position:relative; background: conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .brand-mark::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:#fff; opacity:.95; }
+  .brand-name{ font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.15; color:#0D2E42; }
+  .brand-sub{ font-size:10.5px; color:#1E4E68; font-family:var(--font-mono); font-weight:500; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E68; padding:0 12px 8px; font-weight:700; opacity:.75; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:#0D2E42; font-size:14.5px; font-weight:600; cursor:pointer; text-decoration:none; }
+  .nav-item:hover{ background:rgba(255,255,255,.35); }
+  .nav-item.active{ background:#fff; color:var(--amber-deep); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+  .sidebar-foot{ margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.4); }
+  .avatar{ width:34px; height:34px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+  .foot-name{ font-size:13.5px; font-weight:700; color:#0D2E42; }
+  .foot-role{ font-size:11.5px; color:#1E4E68; }
+  .main{ padding:32px 40px 60px; max-width:1300px; }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--sky-deep); letter-spacing:.06em; margin-bottom:6px; font-weight:600; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:32px; letter-spacing:-0.01em; }
+  .btn{ font-family:var(--font-body); font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; }
+  .btn-primary{ background:var(--amber-deep); color:#fff; }
+  .btn-ghost{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .btn-sage{ background:var(--sage-deep); color:#fff; }
+  .date-nav{ display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+  .date-nav button{ background:var(--surface); border:1px solid var(--line); border-radius:9px; width:36px; height:36px; cursor:pointer; font-size:16px; }
+  .date-nav input[type="date"]{ border:1px solid var(--line); border-radius:9px; padding:9px 12px; font-family:var(--font-body); font-size:14px; }
+  .date-label{ font-family:var(--font-display); font-size:18px; font-weight:600; text-transform:capitalize; }
+  .empty-list{ padding:50px 20px; text-align:center; color:var(--ink-faint); font-size:13.5px; background:var(--surface); border-radius:var(--radius); }
+  .audit-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:14px; }
+  .audit-head{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px; }
+  .audit-name{ font-family:var(--font-display); font-size:18px; font-weight:600; }
+  .audit-sub{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .status-pill{ font-size:10.5px; font-weight:700; padding:4px 11px; border-radius:20px; text-transform:uppercase; }
+  .status-pill.pending{ background:var(--amber-pale); color:var(--amber-deep); }
+  .status-pill.approved{ background:var(--sage-pale); color:var(--sage-deep); }
+  .status-pill.adjusted{ background:var(--slate-pale); color:var(--slate); }
+  .audit-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px; }
+  .audit-stat{ background:var(--bg); border-radius:10px; padding:10px 12px; }
+  .audit-stat-num{ font-family:var(--font-display); font-size:18px; font-weight:600; }
+  .audit-stat-label{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+  .audit-adjust{ border-top:1px solid var(--line); padding-top:14px; display:grid; grid-template-columns:1fr 1fr 2fr auto auto; gap:10px; align-items:end; }
+  .audit-adjust label{ display:block; font-size:11.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px; }
+  .audit-adjust input, .audit-adjust textarea{ width:100%; border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-family:var(--font-body); font-size:13px; }
+  .approved-note{ font-size:12.5px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:12px; }
+  @media (max-width: 980px){
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ display:none; }
+    .bottom-nav{ display:block; }
+    .main{ padding:20px 16px 88px; }
+    .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .page-head .btn{ width:100%; }
+    .audit-stats{ grid-template-columns:repeat(2,1fr); }
+    .audit-adjust{ grid-template-columns:1fr 1fr; }
+  }
+  .bottom-nav{ display:none; position:fixed; left:0; right:0; bottom:0; background:var(--sky); border-top:1px solid var(--sky-deep); padding:8px 6px calc(8px + env(safe-area-inset-bottom)); z-index:40; }
+  .bottom-nav-inner{ display:flex; }
+  .bn-item{ flex:1; display:flex; flex-direction:column; align-items:center; gap:3px; color:#1E4E68; font-size:9.5px; font-weight:700; text-decoration:none; padding:4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+  .bn-item svg{ width:21px; height:21px; }
+  .bn-item.active{ color:var(--amber-deep); }
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px; display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Vicky Cleaning</div>
+        <div class="brand-sub">(941) 822-1699</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Operar</div>
+      <a class="nav-item" href="panel.html">Panel</a>
+      <a class="nav-item" href="calendario.html">Calendario</a>
+      <a class="nav-item" href="clientes.html">Clientes</a>
+      <div class="nav-label" style="margin-top:10px;">Administrar</div>
+      <a class="nav-item" href="empleados.html">Empleados</a>
+      <a class="nav-item" href="incidencias.html">Incidencias</a>
+      <a class="nav-item active" href="auditoria.html">Auditoría</a>
+      <a class="nav-item" href="empleada.html" id="switchToEmployeeNavItem" style="display:none;">Modo empleada</a>
+      <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="foot-name" id="sidebarName">Cargando…</div>
+        <div class="foot-role" id="sidebarRole"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <div class="eyebrow">ANTES DE NÓMINA</div>
+        <h1>Auditoría</h1>
+      </div>
+      <button class="btn btn-primary" id="refreshBtn">Actualizar este día</button>
+    </div>
+
+    <div class="date-nav">
+      <button id="prevDayBtn">←</button>
+      <input type="date" id="datePicker">
+      <button id="nextDayBtn">→</button>
+      <button id="todayBtn" class="btn btn-ghost" style="width:auto; padding:8px 14px; font-size:13px;">Hoy</button>
+      <div class="date-label" id="dateLabel" style="margin-left:auto;"></div>
+    </div>
+
+    <div id="auditList"></div>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a class="bn-item" href="panel.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Panel
+    </a>
+    <a class="bn-item" href="calendario.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      Calendario
+    </a>
+    <a class="bn-item" href="clientes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Clientes
+    </a>
+    <a class="bn-item" href="empleados.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Empleados
+    </a>
+    <a class="bn-item" href="incidencias.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
+    </a>
+    <a class="bn-item" id="accountBnItem" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Cuenta
+    </a>
+  </div>
+</nav>
+
+<script src="api.js"></script>
+<script>
+const session = VickyAPI.requireAuth();
+if (session && !VickyAPI.hasRole(session, 'admin')) { window.location.href = 'empleada.html'; }
+if (session) {
+  const user = session.user;
+  const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
+  document.getElementById('sidebarAvatar').textContent = initialsStr.toUpperCase() || '?';
+  document.getElementById('sidebarName').textContent = user.first_name + ' ' + (user.last_name || '');
+  document.getElementById('sidebarRole').textContent = 'Administradora';
+  if (VickyAPI.hasRole(session, 'employee')) {
+    document.getElementById('switchToEmployeeNavItem').style.display = '';
+  }
+}
+document.getElementById('logoutNavItem').addEventListener('click', () => VickyAPI.logout());
+document.getElementById('accountBnItem').addEventListener('click', () => {
+  if (session && VickyAPI.hasRole(session, 'employee')) {
+    if (confirm('¿Cambiar a modo empleada? (Cancelar para ver más opciones)')) {
+      window.location.href = 'empleada.html';
+      return;
+    }
+  }
+  if (confirm('¿Cerrar sesión?')) VickyAPI.logout();
+});
+
+const DAY_NAMES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+const MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const PAY_MODEL_LABELS = { hourly: 'Por hora', per_house: 'Por casa', owner: 'Dueña' };
+const STATUS_LABELS = { pending: 'Pendiente', approved: 'Aprobado', adjusted: 'Ajustado' };
+
+let selectedDate = new Date();
+let employees = [];
+
+function dateToStr(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function renderDateLabel(){
+  const d = selectedDate;
+  document.getElementById('dateLabel').textContent = DAY_NAMES[d.getDay()] + ', ' + d.getDate() + ' de ' + MONTH_NAMES[d.getMonth()];
+  document.getElementById('datePicker').value = dateToStr(d);
+}
+
+function fmtMinutes(min){
+  min = min || 0;
+  const h = Math.floor(min / 60), m = min % 60;
+  return h > 0 ? `${h}h ${m}min` : `${m} min`;
+}
+
+function estimatePay(emp, minutes, houses){
+  if (!emp || emp.pay_model !== 'hourly') return null;
+  const cleaningRate = parseFloat(emp.cleaning_rate) || 0;
+  const drivingRate = parseFloat(emp.driving_rate) || 0;
+  const pay = (minutes.cleaning / 60) * cleaningRate + (minutes.travel / 60) * drivingRate;
+  return Math.round(pay * 100) / 100;
+}
+
+function loadAuditDay(){
+  renderDateLabel();
+  const dateStr = dateToStr(selectedDate);
+  document.getElementById('auditList').innerHTML = '<div class="empty-list">Cargando…</div>';
+
+  Promise.all([
+    VickyAPI.call('getAuditRecords', { dateFrom: dateStr, dateTo: dateStr }),
+    employees.length ? Promise.resolve(employees) : VickyAPI.call('listEmployees', {}),
+  ]).then(([records, emps]) => {
+    employees = emps;
+    if (!records.length) {
+      document.getElementById('auditList').innerHTML = '<div class="empty-list">No hay auditoría generada para este día todavía. Dale click a "Actualizar este día" para calcularla a partir de las visitas registradas.</div>';
+      return;
+    }
+    renderAuditList(records);
+  }).catch(err => {
+    document.getElementById('auditList').innerHTML = '<div class="empty-list">Error al cargar: ' + err.message + '</div>';
+  });
+}
+
+function empName(id){
+  const e = employees.find(x => x.employee_id === id);
+  return e ? [e.first_name, e.last_name].filter(Boolean).join(' ') : id;
+}
+
+function renderAuditList(records){
+  const listEl = document.getElementById('auditList');
+  listEl.innerHTML = records.map(r => {
+    const emp = employees.find(e => e.employee_id === r.employee_id);
+    const isFinal = r.audit_status !== 'pending';
+    const payEstimate = estimatePay(emp, { cleaning: r.cleaning_minutes, travel: r.travel_minutes }, r.houses_completed);
+
+    return `
+      <div class="audit-card" data-audit-id="${r.audit_id}">
+        <div class="audit-head">
+          <div>
+            <div class="audit-name">${empName(r.employee_id)}</div>
+            <div class="audit-sub">${PAY_MODEL_LABELS[r.pay_model] || r.pay_model}${r.driver_role === 'driver' ? ' · Chofer del día' : ''}</div>
+          </div>
+          <div class="status-pill ${r.audit_status}">${STATUS_LABELS[r.audit_status] || r.audit_status}</div>
+        </div>
+        <div class="audit-stats">
+          <div class="audit-stat">
+            <div class="audit-stat-num">${fmtMinutes(r.recorded_minutes)}</div>
+            <div class="audit-stat-label">Turno registrado</div>
+          </div>
+          <div class="audit-stat">
+            <div class="audit-stat-num">${fmtMinutes(r.cleaning_minutes)}</div>
+            <div class="audit-stat-label">Limpieza real</div>
+          </div>
+          <div class="audit-stat">
+            <div class="audit-stat-num">${r.houses_completed || 0}</div>
+            <div class="audit-stat-label">Casas completadas</div>
+          </div>
+          <div class="audit-stat">
+            <div class="audit-stat-num">${payEstimate !== null ? '$' + payEstimate.toFixed(2) : '—'}</div>
+            <div class="audit-stat-label">Pago estimado</div>
+          </div>
+        </div>
+        ${isFinal ? `
+          <div class="approved-note">
+            ${STATUS_LABELS[r.audit_status]} — ${r.approved_minutes || 0} min aprobados, ${r.approved_houses || 0} casas aprobadas.
+            ${r.manager_comment ? `<br>Comentario: ${r.manager_comment}` : ''}
+            <div style="margin-top:8px;"><button class="btn btn-ghost" style="padding:7px 14px; font-size:12.5px;" onclick="reopenForAdjust('${r.audit_id}')">Volver a ajustar</button></div>
+          </div>
+        ` : `
+          <div class="audit-adjust" id="adjust-${r.audit_id}">
+            <div>
+              <label>Minutos aprobados</label>
+              <input type="number" min="0" value="${r.recorded_minutes || 0}" id="min-${r.audit_id}">
+            </div>
+            <div>
+              <label>Casas aprobadas</label>
+              <input type="number" min="0" value="${r.houses_completed || 0}" id="houses-${r.audit_id}">
+            </div>
+            <div>
+              <label>Comentario (opcional)</label>
+              <input type="text" placeholder="Ej: se descontaron 15 min de almuerzo" id="comment-${r.audit_id}">
+            </div>
+            <button class="btn btn-sage" onclick="approveAsIs('${r.audit_id}')">Aprobar tal cual</button>
+            <button class="btn btn-ghost" onclick="saveAdjustment('${r.audit_id}')">Guardar ajuste</button>
+          </div>
+        `}
+      </div>
+    `;
+  }).join('');
+}
+
+function approveAsIs(auditId){
+  VickyAPI.call('approveAudit', { audit_id: auditId })
+    .then(() => { showToast('Aprobado'); loadAuditDay(); })
+    .catch(err => showToast('Error: ' + err.message));
+}
+
+function saveAdjustment(auditId){
+  const minutes = parseInt(document.getElementById('min-' + auditId).value, 10) || 0;
+  const houses = parseInt(document.getElementById('houses-' + auditId).value, 10) || 0;
+  const comment = document.getElementById('comment-' + auditId).value.trim();
+  VickyAPI.call('adjustAudit', { audit_id: auditId, approved_minutes: minutes, approved_houses: houses, manager_comment: comment })
+    .then(() => { showToast('Ajuste guardado'); loadAuditDay(); })
+    .catch(err => showToast('Error: ' + err.message));
+}
+
+function reopenForAdjust(auditId){
+  // Simplemente vuelve a mostrar el formulario de ajuste con los valores actuales,
+  // sin borrar la aprobación anterior hasta que se guarde un nuevo ajuste.
+  VickyAPI.call('getAuditRecords', { dateFrom: dateToStr(selectedDate), dateTo: dateToStr(selectedDate) }).then(records => {
+    const r = records.find(x => x.audit_id === auditId);
+    if (!r) return;
+    const card = document.querySelector(`[data-audit-id="${auditId}"]`);
+    const note = card.querySelector('.approved-note');
+    note.outerHTML = `
+      <div class="audit-adjust" id="adjust-${r.audit_id}">
+        <div>
+          <label>Minutos aprobados</label>
+          <input type="number" min="0" value="${r.approved_minutes || r.recorded_minutes || 0}" id="min-${r.audit_id}">
+        </div>
+        <div>
+          <label>Casas aprobadas</label>
+          <input type="number" min="0" value="${r.approved_houses || r.houses_completed || 0}" id="houses-${r.audit_id}">
+        </div>
+        <div>
+          <label>Comentario (opcional)</label>
+          <input type="text" value="${r.manager_comment || ''}" id="comment-${r.audit_id}">
+        </div>
+        <button class="btn btn-sage" onclick="approveAsIs('${r.audit_id}')">Aprobar tal cual</button>
+        <button class="btn btn-ghost" onclick="saveAdjustment('${r.audit_id}')">Guardar ajuste</button>
+      </div>
+    `;
+  });
+}
+
+document.getElementById('refreshBtn').addEventListener('click', () => {
+  const dateStr = dateToStr(selectedDate);
+  VickyAPI.call('buildDailyAudit', { work_date: dateStr })
+    .then(() => { showToast('Auditoría actualizada'); loadAuditDay(); })
+    .catch(err => showToast('Error: ' + err.message));
+});
+
+document.getElementById('prevDayBtn').addEventListener('click', () => {
+  selectedDate.setDate(selectedDate.getDate() - 1);
+  loadAuditDay();
+});
+document.getElementById('nextDayBtn').addEventListener('click', () => {
+  selectedDate.setDate(selectedDate.getDate() + 1);
+  loadAuditDay();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  selectedDate = new Date();
+  loadAuditDay();
+});
+document.getElementById('datePicker').addEventListener('change', function(){
+  if (!this.value) return;
+  const [y, m, d] = this.value.split('-').map(Number);
+  selectedDate = new Date(y, m - 1, d);
+  loadAuditDay();
+});
+
+if (session) loadAuditDay();
+</script>
+</body>
+</html>
