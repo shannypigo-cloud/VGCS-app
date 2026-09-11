@@ -119,22 +119,25 @@
     </div>
   </div>
 
-  <div class="content" id="content"></div>
+  <div class="content" id="content-hoy"></div>
+  <div class="content" id="content-horario" style="display:none;"></div>
+  <div class="content" id="content-incidencias" style="display:none;"></div>
+  <div class="content" id="content-perfil" style="display:none;"></div>
 
   <nav class="bottom-nav">
-    <div class="nav-item active">
+    <div class="nav-item active" data-view="hoy">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
       Hoy
     </div>
-    <div class="nav-item">
+    <div class="nav-item" data-view="horario">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
       Mi horario
     </div>
-    <div class="nav-item">
+    <div class="nav-item" data-view="incidencias">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
       Incidencias
     </div>
-    <div class="nav-item">
+    <div class="nav-item" data-view="perfil">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
       Perfil
     </div>
@@ -146,6 +149,26 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
   <span id="toastText"></span>
 </div>
+
+<style>
+  .simple-list{ display:flex; flex-direction:column; gap:10px; }
+  .simple-card{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
+  .simple-card-title{ font-weight:700; font-size:14.5px; }
+  .simple-card-sub{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .simple-badge{ display:inline-block; font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; margin-top:6px; }
+  .simple-badge.open{ background:var(--amber-pale); color:var(--amber-deep); }
+  .simple-badge.resolved{ background:var(--sage-pale); color:var(--sage-deep); }
+  .section-day{ font-family:var(--font-mono); font-size:11px; color:var(--ink-faint); letter-spacing:.06em; text-transform:uppercase; margin:14px 2px 6px; font-weight:600; }
+  .profile-card{ background:var(--surface); border-radius:16px; padding:20px; text-align:center; }
+  .profile-avatar-big{ width:64px; height:64px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:24px; font-weight:600; margin:0 auto 12px; }
+  .profile-name-big{ font-family:var(--font-display); font-size:19px; font-weight:600; }
+  .profile-sub-big{ font-size:13px; color:var(--ink-soft); margin-top:2px; }
+  .stat-row{ display:flex; gap:10px; margin-top:18px; }
+  .stat-box{ flex:1; background:var(--bg); border-radius:12px; padding:12px 8px; }
+  .stat-box-num{ font-family:var(--font-display); font-size:20px; font-weight:600; }
+  .stat-box-label{ font-size:10.5px; color:var(--ink-soft); margin-top:2px; }
+  .logout-btn{ margin-top:20px; width:100%; background:var(--rust-pale); color:var(--rust); border:none; border-radius:12px; padding:13px 0; font-weight:700; font-size:14px; cursor:pointer; }
+</style>
 
 <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none;">
 
@@ -198,14 +221,14 @@ function mapVisitToJob(v){
 }
 
 function loadDay(){
-  document.getElementById('content').innerHTML = '<div class="empty-note">Cargando tus trabajos de hoy…</div>';
+  document.getElementById('content-hoy').innerHTML = '<div class="empty-note">Cargando tus trabajos de hoy…</div>';
   VickyAPI.call('getMyDay', { work_date: WORK_DATE })
     .then(data => {
       jobs = data.visits.map(mapVisitToJob);
       render();
     })
     .catch(err => {
-      document.getElementById('content').innerHTML = '<div class="empty-note">Error al cargar: ' + err.message + '</div>';
+      document.getElementById('content-hoy').innerHTML = '<div class="empty-note">Error al cargar: ' + err.message + '</div>';
     });
 }
 
@@ -392,7 +415,126 @@ function render(){
     });
   }
 
-  document.getElementById('content').innerHTML = html;
+  document.getElementById('content-hoy').innerHTML = html;
+}
+
+// ---------- Pestañas: Mi horario / Incidencias / Perfil ----------
+const STATUS_LABELS_EMP = { scheduled:'Programado', in_progress:'En progreso', completed:'Completado', cancelled:'Cancelado' };
+const views = ['hoy', 'horario', 'incidencias', 'perfil'];
+let loadedViews = { hoy: true, horario: false, incidencias: false, perfil: false };
+
+function switchView(view){
+  views.forEach(v => {
+    document.getElementById('content-' + v).style.display = (v === view) ? '' : 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.view === view);
+  });
+  if (view === 'horario' && !loadedViews.horario) { loadHorario(); loadedViews.horario = true; }
+  if (view === 'incidencias' && !loadedViews.incidencias) { loadIncidenciasView(); loadedViews.incidencias = true; }
+  if (view === 'perfil' && !loadedViews.perfil) { loadPerfil(); loadedViews.perfil = true; }
+}
+
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', () => switchView(item.dataset.view));
+});
+
+function addDaysToDateStr(dateStr, days){
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function loadHorario(){
+  const el = document.getElementById('content-horario');
+  el.innerHTML = '<div class="empty-note">Cargando tu horario…</div>';
+  const dateFrom = WORK_DATE;
+  const dateTo = addDaysToDateStr(WORK_DATE, 13);
+  VickyAPI.call('getMySchedule', { dateFrom: dateFrom, dateTo: dateTo })
+    .then(visits => {
+      if (!visits.length) {
+        el.innerHTML = '<div class="empty-note">No tienes visitas programadas en los próximos 14 días.</div>';
+        return;
+      }
+      const byDate = {};
+      visits.forEach(v => {
+        if (!byDate[v.visit_date]) byDate[v.visit_date] = [];
+        byDate[v.visit_date].push(v);
+      });
+      const dates = Object.keys(byDate).sort();
+      let html = '';
+      dates.forEach(date => {
+        const label = date === WORK_DATE ? 'Hoy' : new Date(date + 'T00:00:00').toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long' });
+        html += `<div class="section-day">${label.toUpperCase()}</div><div class="simple-list">`;
+        byDate[date].sort((a,b) => (a.start_time||'').localeCompare(b.start_time||'')).forEach(v => {
+          const c = v.client || {};
+          html += `
+            <div class="simple-card">
+              <div class="simple-card-title">${v.start_time || ''} — ${[c.first_name, c.last_name].filter(Boolean).join(' ') || 'Cliente'}</div>
+              <div class="simple-card-sub">${[c.address1, c.city].filter(Boolean).join(', ')}</div>
+              <span class="simple-badge open" style="background:var(--slate-pale); color:var(--slate);">${STATUS_LABELS_EMP[v.status] || v.status}</span>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      });
+      el.innerHTML = html;
+    })
+    .catch(err => { el.innerHTML = '<div class="empty-note">Error al cargar: ' + err.message + '</div>'; });
+}
+
+function loadIncidenciasView(){
+  const el = document.getElementById('content-incidencias');
+  el.innerHTML = '<div class="empty-note">Cargando tus incidencias…</div>';
+  VickyAPI.call('listIncidents', {})
+    .then(all => {
+      const mine = all.filter(i => i.employee_id === session.employee_id)
+        .sort((a,b) => (b.created_at||'').localeCompare(a.created_at||''));
+      if (!mine.length) {
+        el.innerHTML = '<div class="empty-note">No has reportado ninguna incidencia todavía.</div>';
+        return;
+      }
+      el.innerHTML = '<div class="simple-list">' + mine.map(i => `
+        <div class="simple-card">
+          <div class="simple-card-title">${i.incident_type}</div>
+          <div class="simple-card-sub">${i.description}</div>
+          <span class="simple-badge ${i.status}">${i.status === 'open' ? 'Abierta' : 'Resuelta'}</span>
+        </div>
+      `).join('') + '</div>';
+    })
+    .catch(err => { el.innerHTML = '<div class="empty-note">Error al cargar: ' + err.message + '</div>'; });
+}
+
+function loadPerfil(){
+  const el = document.getElementById('content-perfil');
+  el.innerHTML = '<div class="empty-note">Cargando tu perfil…</div>';
+  const employee = session.employee || {};
+  const initialsStr = ((employee.first_name || session.user.first_name || '')[0] || '') + ((employee.last_name || session.user.last_name || '')[0] || '');
+  const dateFrom = addDaysToDateStr(WORK_DATE, -6);
+
+  VickyAPI.call('getMyStats', { dateFrom: dateFrom, dateTo: WORK_DATE })
+    .then(stats => {
+      el.innerHTML = `
+        <div class="profile-card">
+          <div class="profile-avatar-big">${initialsStr.toUpperCase() || '?'}</div>
+          <div class="profile-name-big">${EMPLOYEE_NAME}</div>
+          <div class="profile-sub-big">${employee.phone || 'Sin teléfono registrado'}</div>
+          <div class="stat-row">
+            <div class="stat-box">
+              <div class="stat-box-num">${Math.round((stats.recordedMinutes||0)/60*10)/10}h</div>
+              <div class="stat-box-label">Horas pagadas (7 días)</div>
+            </div>
+            <div class="stat-box">
+              <div class="stat-box-num">${stats.housesCompleted||0}</div>
+              <div class="stat-box-label">Casas completadas</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="perfilLogoutBtn">Cerrar sesión</button>
+        </div>
+      `;
+      document.getElementById('perfilLogoutBtn').addEventListener('click', () => VickyAPI.logout());
+    })
+    .catch(err => { el.innerHTML = '<div class="empty-note">Error al cargar: ' + err.message + '</div>'; });
 }
 
 if (session) {
