@@ -91,11 +91,31 @@
   .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px; display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
   .toast svg{ width:16px; height:16px; color:var(--lime); }
+
+  .bottom-nav{
+    display:none;
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--sky); border-top:1px solid var(--sky-deep);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index:40;
+  }
+  .bottom-nav-inner{ display:flex; }
+  .bn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:#1E4E68; font-size:9.5px; font-weight:700; text-decoration:none;
+    padding:4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  }
+  .bn-item svg{ width:21px; height:21px; }
+  .bn-item.active{ color:var(--amber-deep); }
   @media (max-width: 980px){
     .app{ grid-template-columns:1fr; }
     .sidebar{ display:none; }
     .split{ grid-template-columns:1fr; }
     .profile-body{ grid-template-columns:1fr; }
+    .bottom-nav{ display:block; }
+    .main{ padding:20px 16px 88px; }
+    .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .page-head .btn{ width:100%; }
   }
 </style>
 </head>
@@ -215,6 +235,35 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
   <span id="toastText"></span>
 </div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a class="bn-item" href="panel.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Panel
+    </a>
+    <a class="bn-item" href="calendario.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      Calendario
+    </a>
+    <a class="bn-item" href="clientes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Clientes
+    </a>
+    <a class="bn-item active" href="empleados.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Empleados
+    </a>
+    <a class="bn-item" href="incidencias.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
+    </a>
+    <a class="bn-item" id="accountBnItem" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Cuenta
+    </a>
+  </div>
+</nav>
 
 <script src="api.js"></script>
 <script>
@@ -438,6 +487,16 @@ document.getElementById('empForm').addEventListener('submit', (e) => {
 });
 
 if (session) loadEmployees();
+
+document.getElementById('accountBnItem').addEventListener('click', () => {
+  if (session && VickyAPI.hasRole(session, 'employee')) {
+    if (confirm('¿Cambiar a modo empleada? (Cancelar para ver más opciones)')) {
+      window.location.href = 'empleada.html';
+      return;
+    }
+  }
+  if (confirm('¿Cerrar sesión?')) VickyAPI.logout();
+});
 </script>
 </body>
 </html>
