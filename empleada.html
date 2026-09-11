@@ -430,9 +430,10 @@ function switchView(view){
   document.querySelectorAll('.nav-item').forEach(item => {
     item.classList.toggle('active', item.dataset.view === view);
   });
-  if (view === 'horario' && !loadedViews.horario) { loadHorario(); loadedViews.horario = true; }
-  if (view === 'incidencias' && !loadedViews.incidencias) { loadIncidenciasView(); loadedViews.incidencias = true; }
-  if (view === 'perfil' && !loadedViews.perfil) { loadPerfil(); loadedViews.perfil = true; }
+  if (view === 'horario') { loadHorario(); }
+  if (view === 'incidencias') { loadIncidenciasView(); }
+  if (view === 'perfil') { loadPerfil(); }
+  if (view === 'hoy') { loadDay(); }
 }
 
 document.querySelectorAll('.nav-item').forEach(item => {
