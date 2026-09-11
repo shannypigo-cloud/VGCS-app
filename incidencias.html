@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Incidencias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
+    --slate:#3060B0; --slate-pale:#E3EBF7;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:14px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--sky); border-right:1px solid var(--sky); padding:28px 20px; display:flex; flex-direction:column; gap:32px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{ width:38px; height:38px; border-radius:11px; flex-shrink:0; position:relative; background: conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .brand-mark::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:#fff; opacity:.95; }
+  .brand-name{ font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.15; color:#0D2E42; }
+  .brand-sub{ font-size:10.5px; color:#1E4E68; font-family:var(--font-mono); font-weight:500; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E68; padding:0 12px 8px; font-weight:700; opacity:.75; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:#0D2E42; font-size:14.5px; font-weight:600; cursor:pointer; text-decoration:none; }
+  .nav-item:hover{ background:rgba(255,255,255,.35); }
+  .nav-item.active{ background:#fff; color:var(--amber-deep); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+  .sidebar-foot{ margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.4); }
+  .avatar{ width:34px; height:34px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+  .foot-name{ font-size:13.5px; font-weight:700; color:#0D2E42; }
+  .foot-role{ font-size:11.5px; color:#1E4E68; }
+  .main{ padding:32px 40px 60px; max-width:1300px; }
+  .page-head{ margin-bottom:22px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--sky-deep); letter-spacing:.06em; margin-bottom:6px; font-weight:600; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:32px; letter-spacing:-0.01em; }
+  .filter-pills{ display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .pill{ font-size:12.5px; font-weight:600; padding:6px 13px; border-radius:20px; border:1px solid var(--line); color:var(--ink-soft); cursor:pointer; background:var(--surface); }
+  .pill.active{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .split{ display:grid; grid-template-columns:420px 1fr; gap:20px; align-items:start; }
+  .incident-list{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; max-height:640px; overflow-y:auto; }
+  .incident-row{ display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
+  .incident-row:last-child{ border-bottom:none; }
+  .incident-row:hover{ background:var(--rust-pale); }
+  .incident-row.selected{ background:var(--rust-pale); box-shadow:inset 3px 0 0 var(--rust); }
+  .incident-type-badge{ font-size:10.5px; font-weight:700; text-transform:uppercase; background:var(--rust-pale); color:var(--rust); padding:3px 9px; border-radius:20px; flex-shrink:0; margin-top:2px; }
+  .incident-row-info{ flex:1; min-width:0; }
+  .incident-row-desc{ font-size:13.5px; font-weight:600; }
+  .incident-row-date{ font-size:11.5px; color:var(--ink-soft); margin-top:3px; }
+  .status-pill{ font-size:10px; font-weight:700; padding:3px 8px; border-radius:20px; flex-shrink:0; text-transform:uppercase; }
+  .status-pill.open{ background:var(--amber-pale); color:var(--amber-deep); }
+  .status-pill.resolved{ background:var(--sage-pale); color:var(--sage-deep); }
+  .empty-list{ padding:40px 20px; text-align:center; color:var(--ink-faint); font-size:13.5px; }
+  .profile{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; min-height:300px; }
+  .profile-head{ padding:26px 28px 22px; background:linear-gradient(135deg, var(--rust), #E08768); color:#fff; }
+  .profile-name{ font-family:var(--font-display); font-size:22px; font-weight:600; text-transform:capitalize; }
+  .profile-sub{ font-size:13px; color:rgba(255,255,255,.85); margin-top:3px; }
+  .profile-body{ padding:24px 28px 28px; display:flex; flex-direction:column; gap:16px; }
+  .field-label{ font-size:11px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:4px; }
+  .field-value{ font-size:14.5px; line-height:1.5; }
+  .profile-placeholder{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--ink-faint); gap:10px; font-size:13.5px; }
+  .btn{ font-family:var(--font-body); font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; }
+  .btn-primary{ background:var(--sage-deep); color:#fff; align-self:flex-start; }
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px; display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  @media (max-width: 980px){
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ display:none; }
+    .split{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Vicky Cleaning</div>
+        <div class="brand-sub">(941) 822-1699</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Operar</div>
+      <a class="nav-item" href="panel.html">Panel</a>
+      <a class="nav-item" href="calendario.html">Calendario</a>
+      <a class="nav-item" href="clientes.html">Clientes</a>
+      <div class="nav-label" style="margin-top:10px;">Administrar</div>
+      <a class="nav-item" href="empleados.html">Empleados</a>
+      <a class="nav-item active" href="incidencias.html">Incidencias</a>
+      <a class="nav-item" href="empleada.html" id="switchToEmployeeNavItem" style="display:none;">Modo empleada</a>
+      <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="foot-name" id="sidebarName">Cargando…</div>
+        <div class="foot-role" id="sidebarRole"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div class="eyebrow">REPORTES DEL EQUIPO</div>
+      <h1>Incidencias</h1>
+    </div>
+
+    <div class="filter-pills" id="filterPills">
+      <div class="pill active" data-filter="open">Abiertas</div>
+      <div class="pill" data-filter="resolved">Resueltas</div>
+      <div class="pill" data-filter="all">Todas</div>
+    </div>
+
+    <div class="split">
+      <div class="incident-list" id="incidentList"></div>
+      <div class="profile" id="profilePanel"></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<script src="api.js"></script>
+<script>
+const session = VickyAPI.requireAuth();
+if (session && !VickyAPI.hasRole(session, 'admin')) { window.location.href = 'empleada.html'; }
+if (session) {
+  const user = session.user;
+  const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
+  document.getElementById('sidebarAvatar').textContent = initialsStr.toUpperCase() || '?';
+  document.getElementById('sidebarName').textContent = user.first_name + ' ' + (user.last_name || '');
+  document.getElementById('sidebarRole').textContent = VickyAPI.hasRole(session, 'admin') ? 'Administradora' : 'Empleada';
+}
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('switchToEmployeeNavItem').style.display = '';
+}
+document.getElementById('logoutNavItem').addEventListener('click', () => VickyAPI.logout());
+
+let incidents = [];
+let employees = [];
+let selectedIndex = 0;
+let activeFilter = 'open';
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function empName(id){
+  const e = employees.find(x => x.employee_id === id);
+  return e ? [e.first_name, e.last_name].filter(Boolean).join(' ') : id;
+}
+
+function loadIncidents(){
+  document.getElementById('incidentList').innerHTML = '<div class="empty-list">Cargando…</div>';
+  const params = activeFilter === 'all' ? {} : { status: activeFilter };
+  Promise.all([
+    VickyAPI.call('listIncidents', params),
+    employees.length ? Promise.resolve(employees) : VickyAPI.call('listEmployees', {}),
+  ]).then(([incData, empData]) => {
+    incidents = incData;
+    employees = empData;
+    if (selectedIndex >= incidents.length) selectedIndex = 0;
+    render();
+  }).catch(err => {
+    document.getElementById('incidentList').innerHTML = '<div class="empty-list">Error al cargar: ' + err.message + '</div>';
+  });
+}
+
+function render(){
+  const listEl = document.getElementById('incidentList');
+  if (!incidents.length) {
+    listEl.innerHTML = '<div class="empty-list">No hay incidencias en este filtro.</div>';
+  } else {
+    listEl.innerHTML = incidents.map((i, idx) => `
+      <div class="incident-row ${idx === selectedIndex ? 'selected' : ''}" data-index="${idx}">
+        <div class="incident-type-badge">${i.incident_type}</div>
+        <div class="incident-row-info">
+          <div class="incident-row-desc">${i.description}</div>
+          <div class="incident-row-date">${empName(i.employee_id)} · ${(i.created_at || '').slice(0,10)}</div>
+        </div>
+        <div class="status-pill ${i.status}">${i.status === 'open' ? 'Abierta' : 'Resuelta'}</div>
+      </div>
+    `).join('');
+    listEl.querySelectorAll('.incident-row').forEach(row => {
+      row.addEventListener('click', () => {
+        selectedIndex = parseInt(row.dataset.index, 10);
+        render();
+      });
+    });
+  }
+  renderProfile();
+}
+
+function renderProfile(){
+  const panel = document.getElementById('profilePanel');
+  const i = incidents[selectedIndex];
+  if (!i) {
+    panel.innerHTML = '<div class="profile-placeholder">Selecciona una incidencia de la lista</div>';
+    return;
+  }
+  panel.innerHTML = `
+    <div class="profile-head">
+      <div class="profile-name">${i.incident_type}</div>
+      <div class="profile-sub">Reportado por ${empName(i.employee_id)} · ${(i.created_at || '').slice(0,10)}</div>
+    </div>
+    <div class="profile-body">
+      <div>
+        <div class="field-label">Descripción</div>
+        <div class="field-value">${i.description}</div>
+      </div>
+      ${i.status === 'resolved' ? `
+        <div>
+          <div class="field-label">Comentario de resolución</div>
+          <div class="field-value">${i.admin_comment || '—'}</div>
+        </div>
+        <div>
+          <div class="field-label">Resuelto el</div>
+          <div class="field-value">${(i.resolved_at || '').slice(0,10)}</div>
+        </div>
+      ` : `
+        <button class="btn btn-primary" id="resolveBtn">Marcar como resuelta</button>
+      `}
+    </div>
+  `;
+
+  const resolveBtn = document.getElementById('resolveBtn');
+  if (resolveBtn) {
+    resolveBtn.addEventListener('click', () => resolveIncident(i));
+  }
+}
+
+function resolveIncident(i){
+  const comment = prompt('Comentario (opcional) sobre cómo se resolvió:') || '';
+  VickyAPI.call('resolveIncident', { incident_id: i.incident_id, admin_comment: comment })
+    .then(() => { showToast('Incidencia resuelta'); loadIncidents(); })
+    .catch(err => showToast('Error: ' + err.message));
+}
+
+document.getElementById('filterPills').addEventListener('click', (e) => {
+  const pill = e.target.closest('.pill');
+  if (!pill) return;
+  document.querySelectorAll('#filterPills .pill').forEach(p => p.classList.remove('active'));
+  pill.classList.add('active');
+  activeFilter = pill.dataset.filter;
+  selectedIndex = 0;
+  loadIncidents();
+});
+
+if (session) loadIncidents();
+</script>
+</body>
+</html>
