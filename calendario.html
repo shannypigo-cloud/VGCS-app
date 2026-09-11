@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Calendario</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
+    --slate:#3060B0; --slate-pale:#E3EBF7;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:14px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--sky); border-right:1px solid var(--sky); padding:28px 20px; display:flex; flex-direction:column; gap:32px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{ width:38px; height:38px; border-radius:11px; flex-shrink:0; position:relative; background: conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .brand-mark::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:#fff; opacity:.95; }
+  .brand-name{ font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.15; color:#0D2E42; }
+  .brand-sub{ font-size:10.5px; color:#1E4E68; font-family:var(--font-mono); font-weight:500; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E68; padding:0 12px 8px; font-weight:700; opacity:.75; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:#0D2E42; font-size:14.5px; font-weight:600; cursor:pointer; text-decoration:none; }
+  .nav-item:hover{ background:rgba(255,255,255,.35); }
+  .nav-item.active{ background:#fff; color:var(--amber-deep); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+  .sidebar-foot{ margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.4); }
+  .avatar{ width:34px; height:34px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+  .foot-name{ font-size:13.5px; font-weight:700; color:#0D2E42; }
+  .foot-role{ font-size:11.5px; color:#1E4E68; }
+  .main{ padding:32px 40px 60px; max-width:1320px; }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--sky-deep); letter-spacing:.06em; margin-bottom:6px; font-weight:600; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:32px; letter-spacing:-0.01em; }
+  .btn{ font-family:var(--font-body); font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; }
+  .btn-primary{ background:var(--amber-deep); color:#fff; }
+  .btn-ghost{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .month-nav{ display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+  .month-nav button{ background:var(--surface); border:1px solid var(--line); border-radius:9px; width:36px; height:36px; cursor:pointer; font-size:16px; }
+  .month-label{ font-family:var(--font-display); font-size:20px; font-weight:600; text-transform:capitalize; flex:1; }
+  .month-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .month-dow{ background:var(--surface); padding:9px 0; text-align:center; font-family:var(--font-mono); font-size:10.5px; color:var(--ink-soft); font-weight:700; text-transform:uppercase; letter-spacing:.03em; }
+  .month-day{ background:var(--surface); min-height:112px; padding:6px 6px 4px; display:flex; flex-direction:column; gap:3px; cursor:pointer; }
+  .month-day:hover{ background:var(--sky-pale); }
+  .month-day.other-month{ background:#FAFCFD; }
+  .month-day.other-month:hover{ background:#F1F6F8; }
+  .day-num{ font-family:var(--font-mono); font-size:12px; font-weight:700; color:var(--ink); width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0; }
+  .day-num.other-month{ color:var(--ink-faint); font-weight:500; }
+  .day-num.today{ background:var(--amber-deep); color:#fff; }
+  .visit-chip{ font-size:10px; font-weight:600; padding:2px 6px; border-radius:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; cursor:pointer; }
+  .visit-chip.scheduled{ background:var(--slate-pale); color:var(--slate); }
+  .visit-chip.in_progress{ background:var(--amber-pale); color:var(--amber-deep); }
+  .visit-chip.completed{ background:var(--sage-pale); color:var(--sage-deep); }
+  .visit-chip.cancelled{ background:#eee; color:var(--ink-faint); text-decoration:line-through; }
+  .more-chip{ font-size:10px; color:var(--ink-faint); padding:1px 6px; cursor:pointer; font-weight:600; }
+  @media (max-width: 900px){
+    .month-day{ min-height:78px; }
+    .day-num{ font-size:11px; width:19px; height:19px; }
+    .visit-chip, .more-chip{ font-size:9px; }
+  }
+  .status-badge{ font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; flex-shrink:0; }
+  .status-badge.scheduled{ background:var(--slate-pale); color:var(--slate); }
+  .status-badge.in_progress{ background:var(--amber-pale); color:var(--amber-deep); }
+  .status-badge.completed{ background:var(--sage-pale); color:var(--sage-deep); }
+  .status-badge.cancelled{ background:var(--rust-pale); color:var(--rust); }
+  .day-popover{ position:fixed; background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:0 12px 32px rgba(0,0,0,.18); padding:12px; z-index:55; width:260px; display:none; max-height:340px; overflow-y:auto; }
+  .day-popover.open{ display:block; }
+  .day-popover-title{ font-family:var(--font-display); font-size:14px; font-weight:600; margin-bottom:8px; color:var(--ink); }
+  .day-popover .visit-chip{ display:block; margin-bottom:5px; padding:5px 8px; font-size:11.5px; white-space:normal; }
+  .empty-list{ padding:50px 20px; text-align:center; color:var(--ink-faint); font-size:13.5px; }
+  .overlay{ position:fixed; inset:0; background:rgba(31,43,36,.45); display:none; align-items:flex-start; justify-content:center; padding:40px 20px; z-index:50; overflow-y:auto; }
+  .overlay.open{ display:flex; }
+  .modal{ background:var(--surface); border-radius:18px; width:100%; max-width:500px; box-shadow:0 20px 60px rgba(0,0,0,.25); margin-bottom:40px; }
+  .modal-head{ padding:22px 26px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
+  .modal-head h2{ font-family:var(--font-display); font-size:19px; font-weight:600; }
+  .modal-close{ background:none; border:none; cursor:pointer; color:var(--ink-faint); font-size:20px; line-height:1; padding:4px; }
+  .modal-body{ padding:20px 26px; display:flex; flex-direction:column; gap:14px; }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .form-field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px; }
+  .form-field input, .form-field select, .form-field textarea{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 11px; font-family:var(--font-body); font-size:13.5px; outline:none; }
+  .client-picker{ position:relative; }
+  .client-picker-results{ position:absolute; top:100%; left:0; right:0; background:var(--surface); border:1px solid var(--line); border-radius:9px; margin-top:4px; max-height:200px; overflow-y:auto; z-index:10; box-shadow:0 8px 24px rgba(0,0,0,.1); display:none; }
+  .client-picker-results.show{ display:block; }
+  .client-picker-item{ padding:9px 12px; font-size:13px; cursor:pointer; border-bottom:1px solid var(--line); }
+  .client-picker-item:last-child{ border-bottom:none; }
+  .client-picker-item:hover{ background:var(--sage-pale); }
+  .client-picker-selected{ font-size:12.5px; color:var(--sage-deep); font-weight:600; margin-top:6px; }
+  .emp-checks{ display:flex; flex-direction:column; gap:2px; max-height:160px; overflow-y:auto; border:1px solid var(--line); border-radius:9px; padding:10px; }
+  .emp-check{ display:flex; flex-direction:row; align-items:center; justify-content:flex-start; flex-wrap:nowrap; gap:8px; font-size:13.5px; padding:6px 2px; cursor:pointer; }
+  .emp-check input[type="checkbox"]{ flex-shrink:0; width:16px; height:16px; margin:0; }
+  .emp-check span{ flex:1; }
+  .modal-foot{ padding:16px 26px 22px; display:flex; gap:10px; justify-content:space-between; flex-wrap:wrap; }
+  .modal-foot-right{ display:flex; gap:10px; }
+  .btn-danger{ background:var(--rust-pale); color:var(--rust); }
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px; display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .bottom-nav{
+    display:none;
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--sky); border-top:1px solid var(--sky-deep);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index:40;
+  }
+  .bottom-nav-inner{ display:flex; }
+  .bn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:#1E4E68; font-size:9.5px; font-weight:700; text-decoration:none;
+    padding:4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  }
+  .bn-item svg{ width:21px; height:21px; }
+  .bn-item.active{ color:var(--amber-deep); }
+  @media (max-width: 980px){
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ display:none; }
+    .bottom-nav{ display:block; }
+    .main{ padding:20px 16px 88px; }
+    .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .page-head .btn{ width:100%; }
+  }
+
+  .account-menu-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:70; align-items:flex-end; justify-content:center; }
+  .account-menu-overlay.open{ display:flex; }
+  .account-menu-sheet{ background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:420px; padding:8px 18px calc(16px + env(safe-area-inset-bottom)); }
+  .account-menu-item{ display:block; padding:15px 4px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); cursor:pointer; }
+  .account-menu-item.danger{ color:var(--rust); }
+  .account-menu-item:last-of-type{ border-bottom:none; }
+  .account-menu-cancel{ text-align:center; padding:15px 4px; font-weight:700; color:var(--ink-soft); cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Vicky Cleaning</div>
+        <div class="brand-sub">(941) 822-1699</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Operar</div>
+      <a class="nav-item active" href="calendario.html">Calendario</a>
+      <a class="nav-item" href="panel.html">Panel</a>
+      <a class="nav-item" href="clientes.html">Clientes</a>
+      <div class="nav-label" style="margin-top:10px;">Administrar</div>
+      <a class="nav-item" href="empleados.html">Empleados</a>
+      <a class="nav-item" href="incidencias.html">Incidencias</a>
+      <a class="nav-item" href="auditoria.html">Auditoría</a>
+      <a class="nav-item" href="empleada.html" id="switchToEmployeeNavItem" style="display:none;">Modo empleada</a>
+      <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="foot-name" id="sidebarName">Cargando…</div>
+        <div class="foot-role" id="sidebarRole"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <div class="eyebrow">PROGRAMACIÓN</div>
+        <h1>Calendario</h1>
+      </div>
+      <button class="btn btn-primary" id="newVisitBtn">+ Nueva Visita</button>
+    </div>
+
+    <div class="month-nav">
+      <button id="prevMonthBtn">←</button>
+      <div class="month-label" id="monthLabel"></div>
+      <button id="todayBtn" class="btn btn-ghost" style="width:auto; padding:8px 14px; font-size:13px;">Hoy</button>
+      <button id="nextMonthBtn">→</button>
+    </div>
+
+    <div class="month-grid" id="monthGrid"></div>
+  </main>
+</div>
+
+<div class="day-popover" id="dayPopover"></div>
+
+<!-- Modal: Nueva/Editar Visita -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">Nueva Visita</h2>
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-field client-picker">
+        <label>Cliente *</label>
+        <input type="text" id="f-client-search" placeholder="Buscar cliente por nombre…" autocomplete="off">
+        <div class="client-picker-results" id="clientResults"></div>
+        <div class="client-picker-selected" id="clientSelected"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Fecha *</label>
+          <input type="date" id="f-date" required>
+        </div>
+        <div class="form-field">
+          <label>Hora de inicio *</label>
+          <input type="time" id="f-time" required>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Duración estimada</label>
+          <select id="f-duration">
+            <option value="1">1 hora</option>
+            <option value="2" selected>2 horas</option>
+            <option value="3">3 horas</option>
+            <option value="4">4 horas</option>
+            <option value="5">5 horas</option>
+            <option value="6">6 horas</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Tipo de visita</label>
+          <select id="f-visit-type">
+            <option value="regular">Regular</option>
+            <option value="extra">Extra</option>
+            <option value="one_time">Única vez</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Equipo asignado</label>
+        <div class="emp-checks" id="empChecks"></div>
+      </div>
+      <div class="form-field">
+        <label>Notas / instrucciones</label>
+        <textarea id="f-notes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button type="button" class="btn btn-danger" id="cancelVisitBtn" style="display:none;">Cancelar visita</button>
+      <div class="modal-foot-right">
+        <button type="button" class="btn btn-ghost" id="closeBtn2">Cerrar</button>
+        <button type="button" class="btn btn-primary" id="saveVisitBtn">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a class="bn-item" href="panel.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Panel
+    </a>
+    <a class="bn-item active" href="calendario.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      Calendario
+    </a>
+    <a class="bn-item" href="clientes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Clientes
+    </a>
+    <a class="bn-item" href="empleados.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Empleados
+    </a>
+    <a class="bn-item" href="incidencias.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
+    </a>
+    <a class="bn-item" id="accountBnItem" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Cuenta
+    </a>
+  </div>
+</nav>
+
+
+<div class="account-menu-overlay" id="accountMenuOverlay">
+  <div class="account-menu-sheet">
+    <a class="account-menu-item" href="auditoria.html">Auditoría</a>
+    <a class="account-menu-item" href="empleada.html" id="menuSwitchEmployee" style="display:none;">Modo empleada</a>
+    <div class="account-menu-item danger" id="menuLogout">Cerrar sesión</div>
+    <div class="account-menu-cancel" id="menuCancel">Cancelar</div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+const session = VickyAPI.requireAuth();
+if (session && !VickyAPI.hasRole(session, 'admin')) { window.location.href = 'empleada.html'; }
+if (session) {
+  const user = session.user;
+  const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
+  document.getElementById('sidebarAvatar').textContent = initialsStr.toUpperCase() || '?';
+  document.getElementById('sidebarName').textContent = user.first_name + ' ' + (user.last_name || '');
+  document.getElementById('sidebarRole').textContent = VickyAPI.hasRole(session, 'admin') ? 'Administradora' : 'Empleada';
+}
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('switchToEmployeeNavItem').style.display = '';
+}
+document.getElementById('logoutNavItem').addEventListener('click', () => VickyAPI.logout());
+
+const STATUS_LABELS = { scheduled:'Programado', in_progress:'En progreso', completed:'Completado', cancelled:'Cancelado' };
+const DOW_NAMES = ['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
+const MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+let viewMonth = new Date(); // cualquier día dentro del mes que se está viendo
+let clients = [];
+let employees = [];
+let visits = [];
+let editingVisitId = null;
+let selectedClientId = null;
+
+function dateToStr(d){
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function addMinutesToTime(time, minutesToAdd){
+  const [h, m] = time.split(':').map(Number);
+  const total = h * 60 + m + minutesToAdd;
+  const nh = Math.floor((total % (24*60)) / 60);
+  const nm = total % 60;
+  return String(nh).padStart(2,'0') + ':' + String(nm).padStart(2,'0');
+}
+
+// Devuelve la cuadrícula completa de días a mostrar (incluye días del mes
+// anterior/siguiente para completar semanas), empezando en domingo.
+function getMonthGridDays(refDate){
+  const year = refDate.getFullYear(), month = refDate.getMonth();
+  const firstOfMonth = new Date(year, month, 1);
+  const startOffset = firstOfMonth.getDay(); // 0=domingo
+  const gridStart = new Date(year, month, 1 - startOffset);
+  const days = [];
+  for (let i = 0; i < 42; i++) { // 6 semanas fijas, siempre completas
+    const d = new Date(gridStart);
+    d.setDate(gridStart.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
+function loadMonth(){
+  document.getElementById('monthLabel').textContent = MONTH_NAMES[viewMonth.getMonth()] + ' ' + viewMonth.getFullYear();
+  document.getElementById('monthGrid').innerHTML = '<div class="empty-list" style="grid-column:1/-1;">Cargando…</div>';
+
+  const gridDays = getMonthGridDays(viewMonth);
+  const dateFrom = dateToStr(gridDays[0]);
+  const dateTo = dateToStr(gridDays[gridDays.length - 1]);
+
+  return Promise.all([
+    VickyAPI.call('listVisits', { dateFrom, dateTo }),
+    clients.length ? Promise.resolve(clients) : VickyAPI.call('listClients', { activeOnly: true }),
+    employees.length ? Promise.resolve(employees) : VickyAPI.call('listEmployees', {}),
+  ]).then(([v, c, e]) => {
+    visits = v;
+    clients = c;
+    employees = e.filter(emp => emp.active !== false);
+    renderMonthGrid(gridDays);
+  }).catch(err => {
+    document.getElementById('monthGrid').innerHTML = '<div class="empty-list" style="grid-column:1/-1;">Error al cargar: ' + err.message + '</div>';
+  });
+}
+
+function renderMonthGrid(gridDays){
+  const gridEl = document.getElementById('monthGrid');
+  const todayStr = dateToStr(new Date());
+  const currentMonth = viewMonth.getMonth();
+
+  const byDate = {};
+  visits.forEach(v => {
+    if (!byDate[v.visit_date]) byDate[v.visit_date] = [];
+    byDate[v.visit_date].push(v);
+  });
+  Object.values(byDate).forEach(list => list.sort((a,b) => (a.start_time||'').localeCompare(b.start_time||'')));
+
+  const clientMap = {};
+  clients.forEach(c => clientMap[c.client_id] = c);
+
+  let html = DOW_NAMES.map(d => `<div class="month-dow">${d}</div>`).join('');
+
+  gridDays.forEach(d => {
+    const dStr = dateToStr(d);
+    const isOtherMonth = d.getMonth() !== currentMonth;
+    const isToday = dStr === todayStr;
+    const dayVisits = byDate[dStr] || [];
+    const shown = dayVisits.slice(0, 3);
+    const extra = dayVisits.length - shown.length;
+
+    const chips = shown.map(v => {
+      const c = clientMap[v.client_id] || {};
+      const name = (c.first_name || 'Cliente').split(' ')[0];
+      return `<div class="visit-chip ${v.status}" data-visit-id="${v.visit_id}">${v.start_time || ''} ${name}</div>`;
+    }).join('');
+    const moreChip = extra > 0 ? `<div class="more-chip" data-date="${dStr}">+${extra} más</div>` : '';
+
+    html += `
+      <div class="month-day ${isOtherMonth ? 'other-month' : ''}" data-date="${dStr}">
+        <div class="day-num ${isOtherMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}">${d.getDate()}</div>
+        ${chips}
+        ${moreChip}
+      </div>
+    `;
+  });
+
+  gridEl.innerHTML = html;
+
+  gridEl.querySelectorAll('.month-day').forEach(cell => {
+    cell.addEventListener('click', (e) => {
+      if (e.target.closest('.visit-chip') || e.target.closest('.more-chip')) return;
+      openModalNew(cell.dataset.date);
+    });
+  });
+  gridEl.querySelectorAll('.visit-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeDayPopover();
+      const visit = visits.find(v => v.visit_id === chip.dataset.visitId);
+      if (visit) openModalForEdit(visit);
+    });
+  });
+  gridEl.querySelectorAll('.more-chip').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openDayPopover(chip.dataset.date, chip.getBoundingClientRect());
+    });
+  });
+}
+
+function openDayPopover(dateStr, anchorRect){
+  const pop = document.getElementById('dayPopover');
+  const dayVisits = visits.filter(v => v.visit_date === dateStr).sort((a,b) => (a.start_time||'').localeCompare(b.start_time||''));
+  const clientMap = {};
+  clients.forEach(c => clientMap[c.client_id] = c);
+
+  const d = new Date(dateStr + 'T00:00:00');
+  pop.innerHTML = `
+    <div class="day-popover-title">${d.getDate()} de ${MONTH_NAMES[d.getMonth()]}</div>
+    ${dayVisits.map(v => {
+      const c = clientMap[v.client_id] || {};
+      return `<div class="visit-chip ${v.status}" data-visit-id="${v.visit_id}">${v.start_time || ''} — ${[c.first_name, c.last_name].filter(Boolean).join(' ') || 'Cliente'}</div>`;
+    }).join('')}
+  `;
+
+  let left = anchorRect.left;
+  let top = anchorRect.bottom + 6;
+  if (left + 260 > window.innerWidth) left = window.innerWidth - 270;
+  if (top + 340 > window.innerHeight) top = anchorRect.top - 340;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+  pop.classList.add('open');
+
+  pop.querySelectorAll('.visit-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      closeDayPopover();
+      const visit = visits.find(v => v.visit_id === chip.dataset.visitId);
+      if (visit) openModalForEdit(visit);
+    });
+  });
+}
+
+function closeDayPopover(){
+  document.getElementById('dayPopover').classList.remove('open');
+}
+
+document.addEventListener('click', (e) => {
+  const pop = document.getElementById('dayPopover');
+  if (pop.classList.contains('open') && !pop.contains(e.target) && !e.target.closest('.more-chip')) {
+    closeDayPopover();
+  }
+});
+
+// ---------- Selector de cliente (typeahead simple) ----------
+document.getElementById('f-client-search').addEventListener('input', function(){
+  const q = this.value.trim().toLowerCase();
+  const resultsEl = document.getElementById('clientResults');
+  if (!q) { resultsEl.classList.remove('show'); return; }
+  const matches = clients.filter(c => {
+    const name = [c.first_name, c.last_name].filter(Boolean).join(' ').toLowerCase();
+    return name.includes(q) || (c.address1 || '').toLowerCase().includes(q);
+  }).slice(0, 8);
+  if (!matches.length) { resultsEl.classList.remove('show'); return; }
+  resultsEl.innerHTML = matches.map(c => `
+    <div class="client-picker-item" data-client-id="${c.client_id}">
+      ${[c.first_name, c.last_name].filter(Boolean).join(' ')} — ${c.address1 || ''}
+    </div>
+  `).join('');
+  resultsEl.classList.add('show');
+  resultsEl.querySelectorAll('.client-picker-item').forEach(item => {
+    item.addEventListener('click', () => selectClient(item.dataset.clientId));
+  });
+});
+
+function selectClient(clientId){
+  const c = clients.find(x => x.client_id === clientId);
+  selectedClientId = clientId;
+  document.getElementById('f-client-search').value = '';
+  document.getElementById('clientResults').classList.remove('show');
+  document.getElementById('clientSelected').textContent = c ? '✓ ' + [c.first_name, c.last_name].filter(Boolean).join(' ') : '';
+}
+
+// ---------- Modal ----------
+const overlay = document.getElementById('overlay');
+
+function renderEmpChecks(selectedIds){
+  selectedIds = selectedIds || [];
+  const validEmployees = employees.filter(e => (e.first_name || '').trim());
+  document.getElementById('empChecks').innerHTML = validEmployees.map(e => `
+    <label class="emp-check">
+      <input type="checkbox" value="${e.employee_id}" ${selectedIds.indexOf(e.employee_id) !== -1 ? 'checked' : ''}>
+      <span>${[e.first_name, e.last_name].filter(Boolean).join(' ')}</span>
+    </label>
+  `).join('') || '<div style="color:var(--ink-faint); font-size:13px;">No hay empleados activos registrados.</div>';
+}
+
+function openModalNew(dateStr){
+  editingVisitId = null;
+  selectedClientId = null;
+  document.getElementById('modalTitle').textContent = 'Nueva Visita';
+  document.getElementById('f-client-search').value = '';
+  document.getElementById('clientSelected').textContent = '';
+  document.getElementById('f-date').value = dateStr || dateToStr(new Date());
+  document.getElementById('f-time').value = '09:00';
+  document.getElementById('f-duration').value = '2';
+  document.getElementById('f-visit-type').value = 'regular';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('cancelVisitBtn').style.display = 'none';
+  renderEmpChecks([]);
+  overlay.classList.add('open');
+}
+
+function openModalForEdit(v){
+  editingVisitId = v.visit_id;
+  selectedClientId = v.client_id;
+  const c = clients.find(x => x.client_id === v.client_id);
+  document.getElementById('modalTitle').textContent = 'Editar Visita';
+  document.getElementById('f-client-search').value = '';
+  document.getElementById('clientSelected').textContent = c ? '✓ ' + [c.first_name, c.last_name].filter(Boolean).join(' ') : '';
+  document.getElementById('f-date').value = v.visit_date;
+  document.getElementById('f-time').value = v.start_time;
+  document.getElementById('f-duration').value = '2';
+  document.getElementById('f-visit-type').value = v.visit_type || 'regular';
+  document.getElementById('f-notes').value = v.admin_notes || '';
+  document.getElementById('cancelVisitBtn').style.display = v.status === 'cancelled' ? 'none' : 'inline-block';
+  renderEmpChecks((v.assignments || []).map(a => a.employee_id));
+  overlay.classList.add('open');
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  editingVisitId = null;
+  selectedClientId = null;
+}
+
+document.getElementById('newVisitBtn').addEventListener('click', () => openModalNew());
+document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+document.getElementById('closeBtn2').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+document.getElementById('saveVisitBtn').addEventListener('click', () => {
+  if (!selectedClientId) { showToast('Selecciona un cliente primero'); return; }
+  const date = document.getElementById('f-date').value;
+  const time = document.getElementById('f-time').value;
+  const duration = parseInt(document.getElementById('f-duration').value, 10);
+  if (!date || !time) { showToast('Falta fecha u hora'); return; }
+
+  const empIds = Array.from(document.querySelectorAll('#empChecks input:checked')).map(el => el.value);
+  const patch = {
+    client_id: selectedClientId,
+    visit_date: date,
+    start_time: time,
+    estimated_end_time: addMinutesToTime(time, duration * 60),
+    visit_type: document.getElementById('f-visit-type').value,
+    admin_notes: document.getElementById('f-notes').value.trim(),
+  };
+
+  const saveBtn = document.getElementById('saveVisitBtn');
+  saveBtn.disabled = true;
+  const originalBtnText = saveBtn.textContent;
+  saveBtn.textContent = 'Guardando…';
+
+  const afterSave = (visitId) => {
+    VickyAPI.call('setVisitAssignments', { visit_id: visitId, employeeIds: empIds })
+      .then(() => {
+        closeModal();
+        showToast('Visita guardada');
+        loadMonth();
+      })
+      .catch(err => showToast('Visita guardada, pero error al asignar equipo: ' + err.message))
+      .finally(() => { saveBtn.disabled = false; saveBtn.textContent = originalBtnText; });
+  };
+
+  if (editingVisitId) {
+    VickyAPI.call('updateVisit', { visit_id: editingVisitId, patch: patch })
+      .then(() => afterSave(editingVisitId))
+      .catch(err => { showToast('Error: ' + err.message); saveBtn.disabled = false; saveBtn.textContent = originalBtnText; });
+  } else {
+    VickyAPI.call('createVisit', patch)
+      .then(result => afterSave(result.visit_id))
+      .catch(err => { showToast('Error: ' + err.message); saveBtn.disabled = false; saveBtn.textContent = originalBtnText; });
+  }
+});
+
+document.getElementById('cancelVisitBtn').addEventListener('click', () => {
+  if (!editingVisitId) return;
+  if (!confirm('¿Cancelar esta visita?')) return;
+  VickyAPI.call('cancelVisit', { visit_id: editingVisitId })
+    .then(() => { closeModal(); showToast('Visita cancelada'); loadMonth(); })
+    .catch(err => showToast('Error: ' + err.message));
+});
+
+document.getElementById('prevMonthBtn').addEventListener('click', () => {
+  viewMonth.setMonth(viewMonth.getMonth() - 1);
+  loadMonth();
+});
+document.getElementById('nextMonthBtn').addEventListener('click', () => {
+  viewMonth.setMonth(viewMonth.getMonth() + 1);
+  loadMonth();
+});
+document.getElementById('todayBtn').addEventListener('click', () => {
+  viewMonth = new Date();
+  loadMonth();
+});
+
+if (session) {
+  loadMonth().then(() => {
+    const params = new URLSearchParams(window.location.search);
+    const editVisitId = params.get('edit');
+    if (editVisitId) {
+      const visit = visits.find(v => v.visit_id === editVisitId);
+      if (visit) openModalForEdit(visit);
+    }
+  });
+}
+
+document.getElementById('accountBnItem').addEventListener('click', () => {
+  document.getElementById('accountMenuOverlay').classList.add('open');
+});
+document.getElementById('accountMenuOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'accountMenuOverlay') e.target.classList.remove('open');
+});
+document.getElementById('menuCancel').addEventListener('click', () => {
+  document.getElementById('accountMenuOverlay').classList.remove('open');
+});
+document.getElementById('menuLogout').addEventListener('click', () => VickyAPI.logout());
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('menuSwitchEmployee').style.display = '';
+}
+</script>
+</body>
+</html>

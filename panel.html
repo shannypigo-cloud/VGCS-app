@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --lime:#B4D040; --lime-deep:#96B22A;
+    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
+    --slate:#3060B0; --slate-pale:#E3EBF7;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:14px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--sky); border-right:1px solid var(--sky); padding:28px 20px; display:flex; flex-direction:column; gap:32px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{ width:38px; height:38px; border-radius:11px; flex-shrink:0; position:relative; background: conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .brand-mark::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:#fff; opacity:.95; }
+  .brand-name{ font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.15; color:#0D2E42; }
+  .brand-sub{ font-size:10.5px; color:#1E4E68; font-family:var(--font-mono); font-weight:500; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E68; padding:0 12px 8px; font-weight:700; opacity:.75; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:#0D2E42; font-size:14.5px; font-weight:600; cursor:pointer; text-decoration:none; }
+  .nav-item:hover{ background:rgba(255,255,255,.35); }
+  .nav-item.active{ background:#fff; color:var(--amber-deep); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+  .sidebar-foot{ margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.4); }
+  .avatar{ width:34px; height:34px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+  .foot-name{ font-size:13.5px; font-weight:700; color:#0D2E42; }
+  .foot-role{ font-size:11.5px; color:#1E4E68; }
+  .main{ padding:32px 40px 60px; max-width:1300px; }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--sky-deep); letter-spacing:.06em; margin-bottom:6px; font-weight:600; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:32px; letter-spacing:-0.01em; }
+  .btn{ font-family:var(--font-body); font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; }
+  .btn-primary{ background:var(--amber-deep); color:#fff; }
+  .btn-primary:hover{ background:#A85610; }
+  .stats-mini{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:26px; }
+  .stat-mini{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; position:relative; overflow:hidden; text-decoration:none; color:var(--ink); cursor:pointer; }
+  .stat-mini::after{ content:""; position:absolute; left:0; top:0; bottom:0; width:3px; }
+  .stat-mini.servicios::after{ background:var(--slate); }
+  .stat-mini.empleados::after{ background:var(--sage); }
+  .stat-mini.clientes::after{ background:var(--amber); }
+  .stat-mini.incidencias::after{ background:var(--rust); }
+  .stat-mini-num{ font-family:var(--font-display); font-size:26px; font-weight:600; line-height:1; }
+  .stat-mini-label{ font-size:12px; color:var(--ink-soft); margin-top:6px; }
+  .section-title{ font-family:var(--font-display); font-size:19px; font-weight:600; margin:26px 0 14px; }
+  .agenda-list{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .agenda-row{ display:flex; align-items:center; gap:14px; padding:14px 18px; border-bottom:1px solid var(--line); }
+  .agenda-row:last-child{ border-bottom:none; }
+  .agenda-time{ font-family:var(--font-mono); font-size:13px; color:var(--ink-soft); width:56px; flex-shrink:0; }
+  .agenda-info{ flex:1; min-width:0; }
+  .agenda-client{ font-weight:600; font-size:14.5px; }
+  .agenda-addr{ font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .agenda-emps{ font-size:11.5px; color:var(--ink-faint); margin-top:3px; }
+  .status-badge{ font-size:11px; font-weight:700; padding:4px 10px; border-radius:20px; flex-shrink:0; }
+  .status-badge.scheduled{ background:var(--slate-pale); color:var(--slate); }
+  .status-badge.in_progress{ background:var(--amber-pale); color:var(--amber-deep); }
+  .status-badge.completed{ background:var(--sage-pale); color:var(--sage-deep); }
+  .status-badge.cancelled{ background:var(--rust-pale); color:var(--rust); }
+  .empty-list{ padding:40px 20px; text-align:center; color:var(--ink-faint); font-size:13.5px; }
+  .incident-row{ display:flex; align-items:center; gap:12px; padding:12px 18px; border-bottom:1px solid var(--line); }
+  .incident-row:last-child{ border-bottom:none; }
+  .incident-type{ font-size:11px; font-weight:700; background:var(--rust-pale); color:var(--rust); padding:3px 9px; border-radius:20px; flex-shrink:0; }
+  .incident-desc{ font-size:13.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  .bottom-nav{
+    display:none;
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--sky); border-top:1px solid var(--sky-deep);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index:40;
+  }
+  .bottom-nav-inner{ display:flex; }
+  .bn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:#1E4E68; font-size:9.5px; font-weight:700; text-decoration:none;
+    padding:4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  }
+  .bn-item svg{ width:21px; height:21px; }
+  .bn-item.active{ color:var(--amber-deep); }
+  @media (max-width: 980px){
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ display:none; }
+    .stats-mini{ grid-template-columns:repeat(2,1fr); }
+    .bottom-nav{ display:block; }
+    .main{ padding:20px 16px 88px; }
+    .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .page-head .btn{ width:100%; }
+  }
+
+  .account-menu-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:70; align-items:flex-end; justify-content:center; }
+  .account-menu-overlay.open{ display:flex; }
+  .account-menu-sheet{ background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:420px; padding:8px 18px calc(16px + env(safe-area-inset-bottom)); }
+  .account-menu-item{ display:block; padding:15px 4px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); cursor:pointer; }
+  .account-menu-item.danger{ color:var(--rust); }
+  .account-menu-item:last-of-type{ border-bottom:none; }
+  .account-menu-cancel{ text-align:center; padding:15px 4px; font-weight:700; color:var(--ink-soft); cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Vicky Cleaning</div>
+        <div class="brand-sub">(941) 822-1699</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Operar</div>
+      <a class="nav-item active" href="panel.html">Panel</a>
+      <a class="nav-item" href="calendario.html">Calendario</a>
+      <a class="nav-item" href="clientes.html">Clientes</a>
+      <div class="nav-label" style="margin-top:10px;">Administrar</div>
+      <a class="nav-item" href="empleados.html">Empleados</a>
+      <a class="nav-item" href="incidencias.html">Incidencias</a>
+      <a class="nav-item" href="auditoria.html">Auditoría</a>
+      <a class="nav-item" href="empleada.html" id="switchToEmployeeNavItem" style="display:none;">Modo empleada</a>
+      <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="foot-name" id="sidebarName">Cargando…</div>
+        <div class="foot-role" id="sidebarRole"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <div class="eyebrow" id="eyebrow">RESUMEN DE HOY</div>
+        <h1>Panel</h1>
+      </div>
+      <a class="btn btn-primary" href="calendario.html">+ Nueva Visita</a>
+    </div>
+
+    <div class="stats-mini" id="statsMini">
+      <div class="empty-list">Cargando…</div>
+    </div>
+
+    <div class="section-title">Agenda de hoy</div>
+    <div class="agenda-list" id="agendaList"></div>
+
+    <div class="section-title">Incidencias abiertas</div>
+    <div class="agenda-list" id="incidentList"></div>
+  </main>
+</div>
+
+<div class="visit-detail-overlay" id="visitDetailOverlay"></div>
+
+<style>
+  .visit-detail-overlay{ position:fixed; inset:0; background:rgba(31,43,36,.45); display:none; align-items:center; justify-content:center; padding:20px; z-index:80; }
+  .visit-detail-overlay.open{ display:flex; }
+  .visit-detail-card{ background:var(--surface); border-radius:18px; width:100%; max-width:440px; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .visit-detail-head{ padding:20px 22px; border-bottom:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-between; }
+  .visit-detail-title{ font-family:var(--font-display); font-size:19px; font-weight:600; }
+  .visit-detail-sub{ font-size:12.5px; color:var(--ink-soft); margin-top:2px; }
+  .visit-detail-body{ padding:18px 22px 24px; }
+  .vd-section-title{ font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin:14px 0 8px; }
+  .modal-close-btn{ background:none; border:none; font-size:22px; color:var(--ink-faint); cursor:pointer; line-height:1; }
+  .time-row{ display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .time-row:last-child{ border-bottom:none; }
+  .time-row-detail{ color:var(--ink-soft); font-family:var(--font-mono); font-size:12.5px; }
+</style>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a class="bn-item active" href="panel.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Panel
+    </a>
+    <a class="bn-item" href="calendario.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      Calendario
+    </a>
+    <a class="bn-item" href="clientes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Clientes
+    </a>
+    <a class="bn-item" href="empleados.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Empleados
+    </a>
+    <a class="bn-item" href="incidencias.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
+    </a>
+    <a class="bn-item" id="accountBnItem" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Cuenta
+    </a>
+  </div>
+</nav>
+
+
+<div class="account-menu-overlay" id="accountMenuOverlay">
+  <div class="account-menu-sheet">
+    <a class="account-menu-item" href="auditoria.html">Auditoría</a>
+    <a class="account-menu-item" href="empleada.html" id="menuSwitchEmployee" style="display:none;">Modo empleada</a>
+    <div class="account-menu-item danger" id="menuLogout">Cerrar sesión</div>
+    <div class="account-menu-cancel" id="menuCancel">Cancelar</div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+const session = VickyAPI.requireAuth();
+if (session && !VickyAPI.hasRole(session, 'admin')) { window.location.href = 'empleada.html'; }
+if (session) {
+  const user = session.user;
+  const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
+  document.getElementById('sidebarAvatar').textContent = initialsStr.toUpperCase() || '?';
+  document.getElementById('sidebarName').textContent = user.first_name + ' ' + (user.last_name || '');
+  document.getElementById('sidebarRole').textContent = VickyAPI.hasRole(session, 'admin') ? 'Administradora' : 'Empleada';
+}
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('switchToEmployeeNavItem').style.display = '';
+}
+document.getElementById('logoutNavItem').addEventListener('click', () => VickyAPI.logout());
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+const TODAY = todayStr();
+const STATUS_LABELS = { scheduled:'Programado', in_progress:'En progreso', completed:'Completado', cancelled:'Cancelado' };
+
+function loadPanel(){
+  Promise.all([
+    VickyAPI.call('listVisits', { dateFrom: TODAY, dateTo: TODAY }),
+    VickyAPI.call('listClients', { activeOnly: true }),
+    VickyAPI.call('listIncidents', { status: 'open' }),
+    VickyAPI.call('listEmployees', {}),
+  ]).then(([visits, clients, incidents, employees]) => {
+    const empIdsToday = new Set();
+    visits.forEach(v => (v.assignments || []).forEach(a => empIdsToday.add(a.employee_id)));
+    const empMap = {};
+    employees.forEach(e => empMap[e.employee_id] = e);
+    const clientMap = {};
+    clients.forEach(c => clientMap[c.client_id] = c);
+
+    document.getElementById('statsMini').innerHTML = `
+      <a class="stat-mini servicios" href="calendario.html">
+        <div class="stat-mini-num">${visits.length}</div>
+        <div class="stat-mini-label">Servicios hoy</div>
+      </a>
+      <a class="stat-mini empleados" href="empleados.html">
+        <div class="stat-mini-num">${empIdsToday.size}</div>
+        <div class="stat-mini-label">Empleados asignados hoy</div>
+      </a>
+      <a class="stat-mini clientes" href="clientes.html">
+        <div class="stat-mini-num">${clients.length}</div>
+        <div class="stat-mini-label">Clientes activos</div>
+      </a>
+      <a class="stat-mini incidencias" href="incidencias.html">
+        <div class="stat-mini-num">${incidents.length}</div>
+        <div class="stat-mini-label">Incidencias abiertas</div>
+      </a>
+    `;
+
+    const agendaEl = document.getElementById('agendaList');
+    if (!visits.length) {
+      agendaEl.innerHTML = '<div class="empty-list">No hay visitas programadas para hoy.</div>';
+    } else {
+      const sorted = visits.slice().sort((a,b) => (a.start_time||'').localeCompare(b.start_time||''));
+      agendaEl.innerHTML = sorted.map(v => {
+        const c = clientMap[v.client_id] || {};
+        const empNames = (v.assignments || []).map(a => {
+          const e = empMap[a.employee_id];
+          return e ? e.first_name : a.employee_id;
+        }).join(', ');
+        return `
+          <div class="agenda-row" style="cursor:pointer;" data-visit-id="${v.visit_id}">
+            <div class="agenda-time">${v.start_time || ''}</div>
+            <div class="agenda-info">
+              <div class="agenda-client">${[c.first_name, c.last_name].filter(Boolean).join(' ') || 'Cliente'}</div>
+              <div class="agenda-addr">${[c.address1, c.city].filter(Boolean).join(', ')}</div>
+              ${empNames ? `<div class="agenda-emps">Equipo: ${empNames}</div>` : '<div class="agenda-emps">Sin asignar</div>'}
+            </div>
+            <div class="status-badge ${v.status}">${STATUS_LABELS[v.status] || v.status}</div>
+          </div>
+        `;
+      }).join('');
+      agendaEl.querySelectorAll('.agenda-row').forEach(row => {
+        row.addEventListener('click', () => openVisitDetail(row.dataset.visitId, empMap));
+      });
+    }
+
+    const incidentEl = document.getElementById('incidentList');
+    if (!incidents.length) {
+      incidentEl.innerHTML = '<div class="empty-list">No hay incidencias abiertas 🎉</div>';
+    } else {
+      incidentEl.innerHTML = incidents.map(i => `
+        <div class="incident-row">
+          <div class="incident-type">${i.incident_type}</div>
+          <div class="incident-desc">${i.description}</div>
+        </div>
+      `).join('');
+    }
+  }).catch(err => {
+    document.getElementById('statsMini').innerHTML = '<div class="empty-list">Error al cargar: ' + err.message + '</div>';
+  });
+}
+
+function fmtMinutes(min){
+  if (min === null || min === undefined) return '—';
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return h > 0 ? `${h}h ${m}min` : `${m} min`;
+}
+
+function openVisitDetail(visitId, empMap){
+  const overlay = document.getElementById('visitDetailOverlay');
+  overlay.innerHTML = '<div class="visit-detail-card"><p style="padding:20px;">Cargando…</p></div>';
+  overlay.classList.add('open');
+
+  VickyAPI.call('getVisit', { visit_id: visitId }).then(v => {
+    const c = v.client || {};
+    const rows = (v.assignments || []).map(a => {
+      const e = empMap[a.employee_id] || {};
+      const t = (v.timeSummary || []).find(ts => ts.employee_id === a.employee_id) || {};
+      return `
+        <div class="time-row">
+          <div class="time-row-name">${[e.first_name, e.last_name].filter(Boolean).join(' ') || a.employee_id}</div>
+          <div class="time-row-detail">${t.minutes !== undefined && t.minutes !== null ? fmtMinutes(t.minutes) : (t.start ? 'En progreso…' : 'Sin iniciar')}</div>
+        </div>
+      `;
+    }).join('') || '<p style="color:var(--ink-faint); font-size:13px;">Sin equipo asignado.</p>';
+
+    overlay.innerHTML = `
+      <div class="visit-detail-card">
+        <div class="visit-detail-head">
+          <div>
+            <div class="visit-detail-title">${[c.first_name, c.last_name].filter(Boolean).join(' ') || 'Cliente'}</div>
+            <div class="visit-detail-sub">${[c.address1, c.city].filter(Boolean).join(', ')}</div>
+          </div>
+          <button class="modal-close-btn" id="closeVisitDetailBtn">&times;</button>
+        </div>
+        <div class="visit-detail-body">
+          <div class="status-badge ${v.status}" style="display:inline-block; margin-bottom:14px;">${STATUS_LABELS[v.status] || v.status}</div>
+          <h4 class="vd-section-title">Tiempo por empleada</h4>
+          ${rows}
+          ${v.admin_notes ? `<h4 class="vd-section-title">Notas / instrucciones</h4><p style="font-size:13.5px;">${v.admin_notes}</p>` : ''}
+          <a class="btn btn-ghost" style="display:inline-block; margin-top:16px; text-decoration:none;" href="calendario.html?edit=${v.visit_id}">Editar esta visita</a>
+        </div>
+      </div>
+    `;
+    document.getElementById('closeVisitDetailBtn').addEventListener('click', () => overlay.classList.remove('open'));
+  }).catch(err => {
+    overlay.innerHTML = `<div class="visit-detail-card"><p style="padding:20px;">Error al cargar: ${err.message}</p></div>`;
+  });
+}
+
+document.getElementById('visitDetailOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'visitDetailOverlay') e.target.classList.remove('open');
+});
+
+if (session) loadPanel();
+
+document.getElementById('accountBnItem').addEventListener('click', () => {
+  document.getElementById('accountMenuOverlay').classList.add('open');
+});
+document.getElementById('accountMenuOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'accountMenuOverlay') e.target.classList.remove('open');
+});
+document.getElementById('menuCancel').addEventListener('click', () => {
+  document.getElementById('accountMenuOverlay').classList.remove('open');
+});
+document.getElementById('menuLogout').addEventListener('click', () => VickyAPI.logout());
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('menuSwitchEmployee').style.display = '';
+}
+</script>
+</body>
+</html>

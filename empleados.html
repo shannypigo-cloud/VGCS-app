@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vicky Cleaning — Empleados</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F3FAFD; --surface:#FFFFFF; --ink:#181A1B; --ink-soft:#5B6670; --ink-faint:#93A0AA;
+    --sky:#8AD0F0; --sky-deep:#2E9AD1; --sky-pale:#E4F5FC;
+    --sage:#8FAE2E; --sage-deep:#6B8A1F; --sage-pale:#EEF5D8;
+    --lime:#B4D040; --lime-deep:#96B22A;
+    --amber:#F58928; --amber-pale:#FDEBDA; --amber-deep:#C96A16;
+    --slate:#3060B0; --slate-pale:#E3EBF7;
+    --rust:#C1553D; --rust-pale:#F6E4DF;
+    --line:#DCE7ED; --radius:14px;
+    --font-display:'Fredoka', sans-serif; --font-body:'Inter', sans-serif; --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ font-family:var(--font-body); background:var(--bg); color:var(--ink); -webkit-font-smoothing:antialiased; }
+  .app{ display:grid; grid-template-columns:240px 1fr; min-height:100vh; }
+  .sidebar{ background:var(--sky); border-right:1px solid var(--sky); padding:28px 20px; display:flex; flex-direction:column; gap:32px; }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand-mark{ width:38px; height:38px; border-radius:11px; flex-shrink:0; position:relative; background: conic-gradient(from 180deg, var(--sage) 0deg 120deg, var(--amber) 120deg 240deg, var(--slate) 240deg 360deg); box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .brand-mark::after{ content:""; position:absolute; inset:11px; border-radius:50%; background:#fff; opacity:.95; }
+  .brand-name{ font-family:var(--font-display); font-weight:600; font-size:18px; line-height:1.15; color:#0D2E42; }
+  .brand-sub{ font-size:10.5px; color:#1E4E68; font-family:var(--font-mono); font-weight:500; }
+  .nav{ display:flex; flex-direction:column; gap:2px; }
+  .nav-label{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#1E4E68; padding:0 12px 8px; font-weight:700; opacity:.75; }
+  .nav-item{ display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:#0D2E42; font-size:14.5px; font-weight:600; cursor:pointer; text-decoration:none; }
+  .nav-item:hover{ background:rgba(255,255,255,.35); }
+  .nav-item.active{ background:#fff; color:var(--amber-deep); box-shadow:0 2px 6px rgba(0,0,0,.1); }
+  .sidebar-foot{ margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px; border-top:1px solid rgba(255,255,255,.4); }
+  .avatar{ width:34px; height:34px; border-radius:50%; background:var(--slate); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex-shrink:0; }
+  .foot-name{ font-size:13.5px; font-weight:700; color:#0D2E42; }
+  .foot-role{ font-size:11.5px; color:#1E4E68; }
+  .main{ padding:32px 40px 60px; max-width:1300px; }
+  .page-head{ display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:22px; }
+  .eyebrow{ font-family:var(--font-mono); font-size:12px; color:var(--sky-deep); letter-spacing:.06em; margin-bottom:6px; font-weight:600; }
+  h1{ font-family:var(--font-display); font-weight:600; font-size:32px; letter-spacing:-0.01em; }
+  .btn{ font-family:var(--font-body); font-weight:600; font-size:14px; padding:11px 20px; border-radius:10px; border:none; cursor:pointer; }
+  .btn-primary{ background:var(--amber-deep); color:#fff; }
+  .btn-primary:hover{ background:#A85610; }
+  .btn-ghost{ background:var(--surface); color:var(--ink); border:1px solid var(--line); }
+  .split{ display:grid; grid-template-columns:380px 1fr; gap:20px; align-items:start; }
+  .emp-list{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; max-height:640px; overflow-y:auto; }
+  .emp-row{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--line); cursor:pointer; }
+  .emp-row:last-child{ border-bottom:none; }
+  .emp-row:hover{ background:var(--sage-pale); }
+  .emp-row.selected{ background:var(--sage-pale); box-shadow:inset 3px 0 0 var(--sage-deep); }
+  .emp-row .avatar{ width:38px; height:38px; font-size:13px; background:var(--sage); flex-shrink:0; }
+  .emp-row-info{ flex:1; min-width:0; }
+  .emp-row-name{ font-weight:600; font-size:14.5px; }
+  .emp-row-sub{ font-size:12px; color:var(--ink-soft); margin-top:1px; }
+  .status-pill{ font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:20px; flex-shrink:0; text-transform:uppercase; }
+  .status-pill.active{ background:var(--sage-pale); color:var(--sage-deep); }
+  .status-pill.vacation{ background:var(--slate-pale); color:var(--slate); }
+  .status-pill.sick{ background:var(--rust-pale); color:var(--rust); }
+  .status-pill.off{ background:#eee; color:var(--ink-faint); }
+  .empty-list{ padding:40px 20px; text-align:center; color:var(--ink-faint); font-size:13.5px; }
+  .profile{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; min-height:300px; }
+  .profile-head{ padding:26px 28px 22px; background:linear-gradient(135deg, var(--slate), var(--sky-deep)); color:#fff; display:flex; align-items:center; gap:18px; position:relative; overflow:hidden; }
+  .profile-avatar{ width:62px; height:62px; border-radius:50%; background:rgba(255,255,255,.18); border:2px solid rgba(255,255,255,.4); display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-size:22px; font-weight:600; flex-shrink:0; }
+  .profile-name{ font-family:var(--font-display); font-size:24px; font-weight:600; }
+  .profile-sub{ font-size:13px; color:rgba(255,255,255,.8); margin-top:3px; }
+  .profile-toolbar{ display:flex; justify-content:flex-end; gap:8px; padding:12px 28px; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .text-btn{ display:flex; align-items:center; gap:6px; font-family:var(--font-body); font-size:12.5px; font-weight:600; background:none; border:1px solid var(--line); border-radius:8px; padding:6px 12px; cursor:pointer; color:var(--ink-soft); }
+  .text-btn:hover{ background:var(--sage-pale); color:var(--ink); }
+  .text-btn.danger:hover{ background:var(--rust-pale); color:var(--rust); border-color:#E9C4B8; }
+  .profile-body{ padding:24px 28px 28px; display:grid; grid-template-columns:1fr 1fr; gap:20px 24px; }
+  .field-group h4{ font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--line); }
+  .field{ padding:6px 0; }
+  .field-label{ font-size:11px; color:var(--ink-faint); }
+  .field-value{ font-size:14px; font-weight:500; }
+  .field-value.empty{ color:var(--ink-faint); font-style:italic; font-weight:400; }
+  .profile-placeholder{ display:flex; flex-direction:column; align-items:center; justify-content:center; height:300px; color:var(--ink-faint); gap:10px; font-size:13.5px; }
+  .overlay{ position:fixed; inset:0; background:rgba(31,43,36,.45); display:none; align-items:flex-start; justify-content:center; padding:60px 20px; z-index:50; }
+  .overlay.open{ display:flex; }
+  .modal{ background:var(--surface); border-radius:18px; width:100%; max-width:460px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .modal-head{ padding:22px 26px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; }
+  .modal-head h2{ font-family:var(--font-display); font-size:19px; font-weight:600; }
+  .modal-close{ background:none; border:none; cursor:pointer; color:var(--ink-faint); font-size:20px; line-height:1; padding:4px; }
+  .modal-body{ padding:20px 26px; display:flex; flex-direction:column; gap:14px; max-height:70vh; overflow-y:auto; }
+  .form-row{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .form-field label{ display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px; }
+  .form-field input, .form-field select, .form-field textarea{ width:100%; border:1px solid var(--line); border-radius:9px; padding:9px 11px; font-family:var(--font-body); font-size:13.5px; outline:none; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus{ border-color:var(--sage-deep); box-shadow:0 0 0 3px var(--sage-pale); }
+  .modal-foot{ padding:16px 26px 22px; display:flex; gap:10px; justify-content:flex-end; }
+  .toast{ position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--ink); color:#fff; padding:12px 20px; border-radius:10px; font-size:13.5px; display:flex; align-items:center; gap:8px; opacity:0; transition:all .25s ease; z-index:60; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  .toast svg{ width:16px; height:16px; color:var(--lime); }
+
+  .bottom-nav{
+    display:none;
+    position:fixed; left:0; right:0; bottom:0;
+    background:var(--sky); border-top:1px solid var(--sky-deep);
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+    z-index:40;
+  }
+  .bottom-nav-inner{ display:flex; }
+  .bn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:3px;
+    color:#1E4E68; font-size:9.5px; font-weight:700; text-decoration:none;
+    padding:4px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%;
+  }
+  .bn-item svg{ width:21px; height:21px; }
+  .bn-item.active{ color:var(--amber-deep); }
+  @media (max-width: 980px){
+    .app{ grid-template-columns:1fr; }
+    .sidebar{ display:none; }
+    .split{ grid-template-columns:1fr; }
+    .profile-body{ grid-template-columns:1fr; }
+    .bottom-nav{ display:block; }
+    .main{ padding:20px 16px 88px; }
+    .page-head{ flex-direction:column; align-items:flex-start; gap:12px; }
+    .page-head .btn{ width:100%; }
+  }
+
+  .account-menu-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:70; align-items:flex-end; justify-content:center; }
+  .account-menu-overlay.open{ display:flex; }
+  .account-menu-sheet{ background:#fff; border-radius:16px 16px 0 0; width:100%; max-width:420px; padding:8px 18px calc(16px + env(safe-area-inset-bottom)); }
+  .account-menu-item{ display:block; padding:15px 4px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); cursor:pointer; }
+  .account-menu-item.danger{ color:var(--rust); }
+  .account-menu-item:last-of-type{ border-bottom:none; }
+  .account-menu-cancel{ text-align:center; padding:15px 4px; font-weight:700; color:var(--ink-soft); cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div>
+        <div class="brand-name">Vicky Cleaning</div>
+        <div class="brand-sub">(941) 822-1699</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-label">Operar</div>
+      <a class="nav-item" href="panel.html">Panel</a>
+      <a class="nav-item" href="calendario.html">Calendario</a>
+      <a class="nav-item" href="clientes.html">Clientes</a>
+      <div class="nav-label" style="margin-top:10px;">Administrar</div>
+      <a class="nav-item active" href="empleados.html">Empleados</a>
+      <a class="nav-item" href="incidencias.html">Incidencias</a>
+      <a class="nav-item" href="auditoria.html">Auditoría</a>
+      <a class="nav-item" href="empleada.html" id="switchToEmployeeNavItem" style="display:none;">Modo empleada</a>
+      <a class="nav-item" id="logoutNavItem" style="cursor:pointer;">Cerrar sesión</a>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="avatar" id="sidebarAvatar">?</div>
+      <div>
+        <div class="foot-name" id="sidebarName">Cargando…</div>
+        <div class="foot-role" id="sidebarRole"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="page-head">
+      <div>
+        <div class="eyebrow" id="eyebrow">EQUIPO</div>
+        <h1>Empleados</h1>
+      </div>
+      <button class="btn btn-primary" id="openModalBtn">+ Nuevo Empleado</button>
+    </div>
+
+    <div class="split">
+      <div class="emp-list" id="empList"></div>
+      <div class="profile" id="profilePanel"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal: Nuevo/Editar Empleado -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="modalTitle">Nuevo Empleado</h2>
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+    </div>
+    <form id="empForm">
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Nombre *</label>
+            <input type="text" id="f-first" required>
+          </div>
+          <div class="form-field">
+            <label>Apellido</label>
+            <input type="text" id="f-last">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Teléfono</label>
+            <input type="tel" id="f-phone">
+          </div>
+          <div class="form-field">
+            <label>Correo</label>
+            <input type="email" id="f-email">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Modelo de pago *</label>
+            <select id="f-pay-model" required onchange="toggleRateFields()">
+              <option value="hourly">Por hora</option>
+              <option value="per_house">Por casa</option>
+              <option value="owner">Dueña</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label>Puesto</label>
+            <input type="text" id="f-job-role" placeholder="cleaner">
+          </div>
+        </div>
+        <div class="form-row" id="rateFieldsRow">
+          <div class="form-field">
+            <label>Tarifa al conducir ($/hora)</label>
+            <input type="number" id="f-driving-rate" step="0.01" min="0" placeholder="15.00">
+          </div>
+          <div class="form-field">
+            <label>Tarifa al limpiar ($/hora)</label>
+            <input type="number" id="f-cleaning-rate" step="0.01" min="0" placeholder="18.00">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Notas</label>
+          <textarea id="f-notes" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-ghost" id="cancelBtn">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="submitBtnText">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+  <span id="toastText"></span>
+</div>
+
+<nav class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <a class="bn-item" href="panel.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Panel
+    </a>
+    <a class="bn-item" href="calendario.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
+      Calendario
+    </a>
+    <a class="bn-item" href="clientes.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.5"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+      Clientes
+    </a>
+    <a class="bn-item active" href="empleados.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Empleados
+    </a>
+    <a class="bn-item" href="incidencias.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.6 2.7 17a1.8 1.8 0 0 0 1.5 2.7h15.6a1.8 1.8 0 0 0 1.5-2.7L13.7 3.6a1.8 1.8 0 0 0-3.4 0Z"/><path d="M12 9.5v4M12 16.7h.01"/></svg>
+      Incidencias
+    </a>
+    <a class="bn-item" id="accountBnItem" style="cursor:pointer;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4.5 5-7 8-7s6.5 2.5 8 7"/></svg>
+      Cuenta
+    </a>
+  </div>
+</nav>
+
+
+<div class="account-menu-overlay" id="accountMenuOverlay">
+  <div class="account-menu-sheet">
+    <a class="account-menu-item" href="auditoria.html">Auditoría</a>
+    <a class="account-menu-item" href="empleada.html" id="menuSwitchEmployee" style="display:none;">Modo empleada</a>
+    <div class="account-menu-item danger" id="menuLogout">Cerrar sesión</div>
+    <div class="account-menu-cancel" id="menuCancel">Cancelar</div>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+const session = VickyAPI.requireAuth();
+if (session && !VickyAPI.hasRole(session, 'admin')) { window.location.href = 'empleada.html'; }
+if (session) {
+  const user = session.user;
+  const initialsStr = ((user.first_name || '')[0] || '') + ((user.last_name || '')[0] || '');
+  document.getElementById('sidebarAvatar').textContent = initialsStr.toUpperCase() || '?';
+  document.getElementById('sidebarName').textContent = user.first_name + ' ' + (user.last_name || '');
+  document.getElementById('sidebarRole').textContent = VickyAPI.hasRole(session, 'admin') ? 'Administradora' : 'Empleada';
+}
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('switchToEmployeeNavItem').style.display = '';
+}
+document.getElementById('logoutNavItem').addEventListener('click', () => VickyAPI.logout());
+
+let employees = [];
+let selectedIndex = 0;
+let editingEmployeeId = null;
+
+const PAY_MODEL_LABELS = { hourly: 'Por hora', per_house: 'Por casa', owner: 'Dueña' };
+const STATUS_LABELS = { active: 'Activa', vacation: 'Vacaciones', sick: 'Enferma', off: 'Fuera' };
+
+function initials(e){
+  const a = String(e.first_name || "").trim()[0] || "";
+  const b = String(e.last_name || "").trim()[0] || "";
+  return (a + b).toUpperCase() || "?";
+}
+function fullName(e){ return [e.first_name, e.last_name].filter(Boolean).join(" "); }
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function loadEmployees(){
+  document.getElementById('empList').innerHTML = '<div class="empty-list">Cargando…</div>';
+  VickyAPI.call('listEmployees', {})
+    .then(data => {
+      employees = data;
+      if (selectedIndex >= employees.length) selectedIndex = 0;
+      render();
+    })
+    .catch(err => {
+      document.getElementById('empList').innerHTML = '<div class="empty-list">Error al cargar: ' + err.message + '</div>';
+    });
+}
+
+function render(){
+  const listEl = document.getElementById('empList');
+  if (!employees.length) {
+    listEl.innerHTML = '<div class="empty-list">Ningún empleado registrado todavía.</div>';
+  } else {
+    listEl.innerHTML = employees.map((e, i) => `
+      <div class="emp-row ${i === selectedIndex ? 'selected' : ''}" data-index="${i}">
+        <div class="avatar">${initials(e)}</div>
+        <div class="emp-row-info">
+          <div class="emp-row-name">${fullName(e)}</div>
+          <div class="emp-row-sub">${PAY_MODEL_LABELS[e.pay_model] || e.pay_model}</div>
+        </div>
+        <div class="status-pill ${e.status}">${STATUS_LABELS[e.status] || e.status}</div>
+      </div>
+    `).join('');
+    listEl.querySelectorAll('.emp-row').forEach(row => {
+      row.addEventListener('click', () => {
+        selectedIndex = parseInt(row.dataset.index, 10);
+        render();
+      });
+    });
+  }
+  renderProfile();
+}
+
+function renderProfile(){
+  const panel = document.getElementById('profilePanel');
+  const e = employees[selectedIndex];
+  if (!e) {
+    panel.innerHTML = '<div class="profile-placeholder">Selecciona un empleado de la lista</div>';
+    return;
+  }
+  panel.innerHTML = `
+    <div class="profile-head">
+      <div class="profile-avatar">${initials(e)}</div>
+      <div>
+        <div class="profile-name">${fullName(e)}</div>
+        <div class="profile-sub">${PAY_MODEL_LABELS[e.pay_model] || e.pay_model} · ${STATUS_LABELS[e.status] || e.status}</div>
+      </div>
+    </div>
+    <div class="profile-toolbar">
+      <button class="text-btn" id="editBtn">Editar</button>
+      <button class="text-btn" id="statusBtn">Cambiar estado</button>
+      <button class="text-btn" id="accessBtn">Crear acceso</button>
+      <button class="text-btn danger" id="deactivateBtn">Desactivar</button>
+    </div>
+    <div class="profile-body">
+      <div class="field-group">
+        <h4>Contacto</h4>
+        <div class="field"><div class="field-label">Teléfono</div><div class="field-value">${e.phone || '<span class="empty">Sin registrar</span>'}</div></div>
+        <div class="field"><div class="field-label">Correo</div><div class="field-value">${e.email || '<span class="empty">Sin registrar</span>'}</div></div>
+      </div>
+      <div class="field-group">
+        <h4>Puesto</h4>
+        <div class="field"><div class="field-label">Rol</div><div class="field-value">${e.job_role || '<span class="empty">Sin registrar</span>'}</div></div>
+        <div class="field"><div class="field-label">Activo</div><div class="field-value">${e.active === false ? 'No' : 'Sí'}</div></div>
+      </div>
+      ${e.pay_model === 'hourly' ? `
+      <div class="field-group">
+        <h4>Tarifas por hora</h4>
+        <div class="field"><div class="field-label">Al conducir</div><div class="field-value">${e.driving_rate ? '$' + e.driving_rate + '/h' : '<span class="empty">Sin registrar</span>'}</div></div>
+        <div class="field"><div class="field-label">Al limpiar</div><div class="field-value">${e.cleaning_rate ? '$' + e.cleaning_rate + '/h' : '<span class="empty">Sin registrar</span>'}</div></div>
+      </div>
+      ` : ''}
+      ${e.notes ? `<div class="field" style="grid-column:1/-1;"><div class="field-label">Notas</div><div class="field-value">${e.notes}</div></div>` : ''}
+    </div>
+  `;
+
+  document.getElementById('editBtn').addEventListener('click', () => openModalForEdit(e));
+  document.getElementById('statusBtn').addEventListener('click', () => changeStatus(e));
+  document.getElementById('accessBtn').addEventListener('click', () => createAccess(e));
+  document.getElementById('deactivateBtn').addEventListener('click', () => deactivate(e));
+}
+
+function changeStatus(e){
+  const options = ['active', 'vacation', 'sick', 'off'];
+  const input = prompt('Nuevo estado (' + options.join(' / ') + '):', e.status);
+  if (!input || options.indexOf(input) === -1) return;
+  VickyAPI.call('setEmployeeStatus', { employee_id: e.employee_id, status: input })
+    .then(() => { showToast('Estado actualizado'); loadEmployees(); })
+    .catch(err => showToast('Error: ' + err.message));
+}
+
+function createAccess(e){
+  const username = prompt('Username para ' + fullName(e) + ':', (e.first_name || '').toLowerCase());
+  if (!username) return;
+  const tempPassword = prompt('Contraseña temporal:');
+  if (!tempPassword) return;
+  VickyAPI.call('createUserForEmployee', { employee_id: e.employee_id, username: username, tempPassword: tempPassword, roles: 'employee' })
+    .then(() => showToast('Cuenta creada para ' + username))
+    .catch(err => showToast('Error: ' + err.message));
+}
+
+function deactivate(e){
+  if (!confirm(`¿Desactivar a ${fullName(e)}? Ya no aparecerá disponible para asignar visitas.`)) return;
+  VickyAPI.call('deactivateEmployee', { employee_id: e.employee_id })
+    .then(() => { showToast(fullName(e) + ' fue desactivada'); loadEmployees(); })
+    .catch(err => showToast('Error: ' + err.message));
+}
+
+function toggleRateFields(){
+  const isHourly = document.getElementById('f-pay-model').value === 'hourly';
+  document.getElementById('rateFieldsRow').style.display = isHourly ? '' : 'none';
+}
+
+function openModal(){
+  editingEmployeeId = null;
+  document.getElementById('modalTitle').textContent = 'Nuevo Empleado';
+  document.getElementById('empForm').reset();
+  overlay.classList.add('open');
+  toggleRateFields();
+  document.getElementById('f-first').focus();
+}
+
+function openModalForEdit(e){
+  editingEmployeeId = e.employee_id;
+  document.getElementById('modalTitle').textContent = 'Editar Empleado';
+  document.getElementById('f-first').value = e.first_name || '';
+  document.getElementById('f-last').value = e.last_name || '';
+  document.getElementById('f-phone').value = e.phone || '';
+  document.getElementById('f-email').value = e.email || '';
+  document.getElementById('f-pay-model').value = e.pay_model || 'hourly';
+  document.getElementById('f-job-role').value = e.job_role || '';
+  document.getElementById('f-notes').value = e.notes || '';
+  document.getElementById('f-driving-rate').value = e.driving_rate || '';
+  document.getElementById('f-cleaning-rate').value = e.cleaning_rate || '';
+  toggleRateFields();
+  overlay.classList.add('open');
+}
+
+function closeModal(){
+  overlay.classList.remove('open');
+  document.getElementById('empForm').reset();
+  editingEmployeeId = null;
+}
+
+const overlay = document.getElementById('overlay');
+document.getElementById('openModalBtn').addEventListener('click', openModal);
+document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+document.getElementById('cancelBtn').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+document.getElementById('empForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const data = {
+    first_name: document.getElementById('f-first').value.trim(),
+    last_name: document.getElementById('f-last').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    pay_model: document.getElementById('f-pay-model').value,
+    job_role: document.getElementById('f-job-role').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    driving_rate: document.getElementById('f-driving-rate').value.trim(),
+    cleaning_rate: document.getElementById('f-cleaning-rate').value.trim(),
+  };
+  const submitBtn = document.getElementById('empForm').querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+
+  if (editingEmployeeId !== null) {
+    VickyAPI.call('updateEmployee', { employee_id: editingEmployeeId, patch: data })
+      .then(() => { closeModal(); showToast('Empleado actualizado'); loadEmployees(); })
+      .catch(err => showToast('Error: ' + err.message))
+      .finally(() => submitBtn.disabled = false);
+  } else {
+    VickyAPI.call('createEmployee', data)
+      .then(() => { selectedIndex = 0; closeModal(); showToast('Empleado agregado'); loadEmployees(); })
+      .catch(err => showToast('Error: ' + err.message))
+      .finally(() => submitBtn.disabled = false);
+  }
+});
+
+if (session) loadEmployees();
+
+document.getElementById('accountBnItem').addEventListener('click', () => {
+  document.getElementById('accountMenuOverlay').classList.add('open');
+});
+document.getElementById('accountMenuOverlay').addEventListener('click', (e) => {
+  if (e.target.id === 'accountMenuOverlay') e.target.classList.remove('open');
+});
+document.getElementById('menuCancel').addEventListener('click', () => {
+  document.getElementById('accountMenuOverlay').classList.remove('open');
+});
+document.getElementById('menuLogout').addEventListener('click', () => VickyAPI.logout());
+if (session && VickyAPI.hasRole(session, 'employee')) {
+  document.getElementById('menuSwitchEmployee').style.display = '';
+}
+</script>
+</body>
+</html>
